@@ -81,3 +81,76 @@ $app->group(['namespace' => 'App\Http\Controllers'], function ($app)
 		]
 	);
 });
+
+
+// $api 							= app('Dingo\Api\Routing\Router');
+
+// $api->version('v1', function ($api) 
+// {
+//     $api->group(['namespace' => 'App\Http\Controllers'], function ($api) 
+// 	{
+// 		$api->get('/business/rules',
+// 			[
+// 				'uses'				=> 'ComponentRuleController@index',
+// 				// 'middleware'		=> 'jwt|company:read-purchase.order',
+// 			]
+// 		);
+
+// 		$api->post('/business/rules',
+// 			[
+// 				'uses'				=> 'ComponentRuleController@post',
+// 				// 'middleware'		=> 'jwt|company:store-purchase.order',
+// 			]
+// 		);
+
+// 		$api->delete('/business/rules',
+// 			[
+// 				'uses'				=> 'ComponentRuleController@delete',
+// 				// 'middleware'		=> 'jwt|company:delete-purchase.order',
+// 			]
+// 		);
+
+// 		$api->get('/workflow/protocols',
+// 			[
+// 				'uses'				=> 'WorkflowProtocolController@index',
+// 				// 'middleware'		=> 'jwt|company:read-purchase.order',
+// 			]
+// 		);
+
+// 		$api->post('/workflow/protocols',
+// 			[
+// 				'uses'				=> 'WorkflowProtocolController@post',
+// 				// 'middleware'		=> 'jwt|company:store-purchase.order',
+// 			]
+// 		);
+
+// 		$api->delete('/workflow/protocols',
+// 			[
+// 				'uses'				=> 'WorkflowProtocolController@delete',
+// 				// 'middleware'		=> 'jwt|company:delete-purchase.order',
+// 			]
+// 		);
+
+// 		$api->get('/workflow/processes',
+// 			[
+// 				'uses'				=> 'WorkflowProcessController@index',
+// 				// 'middleware'		=> 'jwt|company:read-purchase.order',
+// 			]
+// 		);
+
+// 		$api->post('/workflow/processes',
+// 			[
+// 				'uses'				=> 'WorkflowProcessController@post',
+// 				// 'middleware'		=> 'jwt|company:store-purchase.order',
+// 			]
+// 		);
+
+// 		$api->delete('/workflow/processes',
+// 			[
+// 				'uses'				=> 'WorkflowProcessController@delete',
+// 				// 'middleware'		=> 'jwt|company:delete-purchase.order',
+// 			]
+// 		);
+// 	});
+// });
+

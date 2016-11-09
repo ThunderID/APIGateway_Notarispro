@@ -44,9 +44,9 @@ class WorkflowProcessTransformer extends TransformerAbstract
 								'max'	=> '255',
 							],
 			'status' 	=> [
-								'value' => $rule['status'],
-								'type'	=> 'string',
-								'max'	=> '255',
+								'value'		=> $rule['status'],
+								'type'		=> 'enum',
+								'option'	=> 'waiting,failed,succeed',
 							],
 			'processes'	=> [
 								'value' => $array['data'],

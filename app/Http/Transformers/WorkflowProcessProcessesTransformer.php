@@ -20,19 +20,17 @@ class WorkflowProcessProcessesTransformer extends TransformerAbstract
 								'max'	=> '255',
 							],
 			'status' 		=> [
-								'value' => $process['status'],
-								'type'	=> 'string',
-								'max'	=> '255',
+								'value' 	=> $process['status'],
+								'type'		=> 'enum',
+								'option'	=> 'waiting,failed,succeed',
 							],
 			'current_data_version' 		=> [
 								'value' => $process['current_data_version'],
-								'type'	=> 'string',
-								'max'	=> '255',
+								'type'	=> 'integer',
 							],
 			'prev_data_version' 		=> [
 								'value' => $process['prev_data_version'],
-								'type'	=> 'string',
-								'max'	=> '255',
+								'type'	=> 'integer',
 							],
 		];
 	}
