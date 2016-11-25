@@ -1,0 +1,33 @@
+#notarispro machine
+notarispro_nginx:
+    build: ./nginx
+    ports:
+        - 8300:80
+    links:
+        - notarispro_php
+    volumes_from:
+        - notarispro
+notarispro_php:
+    build: ./php/
+    expose:
+        - 9000
+    links:
+        - notarispro_mongo
+    volumes_from:
+        - notarispro
+notarispro:
+    image: php:7.0-fpm
+    volumes:
+        - ./apps:/var/www/html
+    command: "true"
+notarispro_mongo:
+    image: mongo:latest
+    expose:
+        - 27017
+    volumes_from:
+        - data
+data:
+    image: mongo:latest
+    volumes:
+        - ./database:/var/lib/mongo
+    command: "true"

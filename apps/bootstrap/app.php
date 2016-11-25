@@ -22,11 +22,12 @@ try {
 $app = new Laravel\Lumen\Application(
     realpath(__DIR__.'/../')
 );
-$app->register(Jenssegers\Mongodb\MongodbServiceProvider::class);
+
+$app->configure('jwt');
 
 $app->withFacades();
 
-$app->withEloquent();
+// $app->withEloquent();
 
 /*
 |--------------------------------------------------------------------------
@@ -48,6 +49,26 @@ $app->singleton(
     Illuminate\Contracts\Console\Kernel::class,
     App\Console\Kernel::class
 );
+
+$app->singleton(
+    Illuminate\Contracts\Routing\ResponseFactory::class,
+    Illuminate\Routing\ResponseFactory::class
+);
+
+$app->singleton(
+    Illuminate\Auth\AuthManager::class,
+    function ($app) {
+        return $app->make('auth');
+    }
+);
+
+$app->singleton(
+    Illuminate\Cache\CacheManager::class,
+    function ($app) {
+        return $app->make('cache');
+    }
+);
+
 
 /*
 |--------------------------------------------------------------------------
@@ -82,6 +103,9 @@ $app->singleton(
 // $app->register(App\Providers\AppServiceProvider::class);
 // $app->register(App\Providers\AuthServiceProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);
+
+
+$app->register(Tymon\JWTAuth\Providers\LumenServiceProvider::class);
 $app->register(Dingo\Api\Provider\LumenServiceProvider::class);
 
 /*
