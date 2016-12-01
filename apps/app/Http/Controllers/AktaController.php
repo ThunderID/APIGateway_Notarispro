@@ -11,7 +11,6 @@ use Illuminate\Http\Request;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Collection;
 
-use Tymon\JWTAuth\JWTAuth;
 /**
  * Akta  resource representation.
  *
@@ -26,6 +25,7 @@ class AktaController extends Controller
 
 	public function index()
 	{
+		
 		return 'call data from mq';
 	}
 

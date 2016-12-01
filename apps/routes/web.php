@@ -19,54 +19,95 @@ $app->get('/', function () use ($app)
 
 $app->group(['namespace' => 'App\Http\Controllers'], function ($app) 
 {
-	$app->get('/akta',
+	$app->get('/lihat/list/draft',
 		[
-			'uses'				=> 'AktaController@index',
+			'uses'				=> 'DraftAktaController@index',
 			// 'middleware'		=> 'jwt|company:read-akta',
 		]
 	);
 
-	$app->post('/akta',
+	$app->get('/lihat/isi/draft',
 		[
-			'uses'				=> 'AktaController@post',
+			'uses'				=> 'DraftAktaController@show',
+			// 'middleware'		=> 'jwt|company:read-akta',
+		]
+	);
+
+	$app->post('/simpan/draft',
+		[
+			'uses'				=> 'DraftAktaController@store',
 			// 'middleware'		=> 'jwt|company:store-akta',
 		]
 	);
 
-	$app->delete('/akta',
+	$app->delete('/hapus/draft',
 		[
-			'uses'				=> 'AktaController@delete',
+			'uses'				=> 'DraftAktaController@delete',
 			// 'middleware'		=> 'jwt|company:delete-akta',
+		]
+	);
+
+	$app->post('/issue/proposed/akta',
+		[
+			'uses'				=> 'ProposedAktaController@issue',
+			// 'middleware'		=> 'jwt|company:store-akta',
+		]
+	);
+
+	$app->get('/lihat/list/proposed/akta',
+		[
+			'uses'				=> 'ProposedAktaController@index',
+			// 'middleware'		=> 'jwt|company:read-akta',
+		]
+	);
+
+	$app->get('/lihat/isi/proposed/akta',
+		[
+			'uses'				=> 'ProposedAktaController@show',
+			// 'middleware'		=> 'jwt|company:read-akta',
+		]
+	);
+
+	$app->post('/issue/renvoi',
+		[
+			'uses'				=> 'RenvoiController@issue',
+			// 'middleware'		=> 'jwt|company:store-akta',
+		]
+	);
+
+	$app->get('/lihat/list/renvoi',
+		[
+			'uses'				=> 'RenvoiController@index',
+			// 'middleware'		=> 'jwt|company:read-akta',
+		]
+	);
+
+	$app->get('/lihat/isi/renvoi',
+		[
+			'uses'				=> 'RenvoiController@show',
+			// 'middleware'		=> 'jwt|company:read-akta',
+		]
+	);
+
+	$app->post('/simpan/renvoi',
+		[
+			'uses'				=> 'RenvoiController@store',
+			// 'middleware'		=> 'jwt|company:store-akta',
+		]
+	);
+
+	$app->post('/handover/akta',
+		[
+			'uses'				=> 'AktaController@handover',
+			// 'middleware'		=> 'jwt|company:store-akta',
+		]
+	);
+
+	$app->delete('/void/akta',
+		[
+			'uses'				=> 'AktaController@void',
+			// 'middleware'		=> 'jwt|company:store-akta',
 		]
 	);
 });
 
-
-$api 							= app('Dingo\Api\Routing\Router');
-
-// $api->version('v1', function ($api) 
-// {
-//     $api->group(['namespace' => 'App\Http\Controllers'], function ($api) 
-// 	{
-// 		$api->get('/akta',
-// 			[
-// 				'uses'				=> 'AktaController@index',
-// 				// 'middleware'		=> 'jwt|company:read-akta',
-// 			]
-// 		);
-
-// 		$api->post('/akta',
-// 			[
-// 				'uses'				=> 'AktaController@post',
-// 				// 'middleware'		=> 'jwt|company:store-akta',
-// 			]
-// 		);
-
-// 		$api->delete('/akta',
-// 			[
-// 				'uses'				=> 'AktaController@delete',
-// 				// 'middleware'		=> 'jwt|company:delete-akta',
-// 			]
-// 		);
-// 	});
-// });
