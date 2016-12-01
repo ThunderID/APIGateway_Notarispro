@@ -19,6 +19,35 @@ $app->get('/', function () use ($app)
 
 $app->group(['namespace' => 'App\Http\Controllers'], function ($app) 
 {
+	//Sprint I
+	$app->get('/lihat/list/template',
+		[
+			'uses'				=> 'TemplateAktaController@index',
+			// 'middleware'		=> 'jwt|company:read-akta',
+		]
+	);
+
+	$app->get('/lihat/isi/template',
+		[
+			'uses'				=> 'TemplateAktaController@show',
+			// 'middleware'		=> 'jwt|company:read-akta',
+		]
+	);
+
+	$app->post('/simpan/template',
+		[
+			'uses'				=> 'TemplateAktaController@store',
+			// 'middleware'		=> 'jwt|company:store-akta',
+		]
+	);
+
+	$app->delete('/hapus/template',
+		[
+			'uses'				=> 'TemplateAktaController@delete',
+			// 'middleware'		=> 'jwt|company:delete-akta',
+		]
+	);
+	
 	$app->get('/lihat/list/draft',
 		[
 			'uses'				=> 'DraftAktaController@index',
@@ -49,11 +78,12 @@ $app->group(['namespace' => 'App\Http\Controllers'], function ($app)
 
 	$app->post('/issue/proposed/akta',
 		[
-			'uses'				=> 'ProposedAktaController@issue',
+			'uses'				=> 'DraftAktaController@issue',
 			// 'middleware'		=> 'jwt|company:store-akta',
 		]
 	);
 
+	//Sprint II
 	$app->get('/lihat/list/proposed/akta',
 		[
 			'uses'				=> 'ProposedAktaController@index',
@@ -65,6 +95,13 @@ $app->group(['namespace' => 'App\Http\Controllers'], function ($app)
 		[
 			'uses'				=> 'ProposedAktaController@show',
 			// 'middleware'		=> 'jwt|company:read-akta',
+		]
+	);
+
+	$app->delete('/void/proposed/akta',
+		[
+			'uses'				=> 'ProposedAktaController@void',
+			// 'middleware'		=> 'jwt|company:store-akta',
 		]
 	);
 
@@ -103,10 +140,25 @@ $app->group(['namespace' => 'App\Http\Controllers'], function ($app)
 		]
 	);
 
-	$app->delete('/void/akta',
+	//Sprint III
+	$app->get('/lihat/list/akta',
 		[
-			'uses'				=> 'AktaController@void',
-			// 'middleware'		=> 'jwt|company:store-akta',
+			'uses'				=> 'AktaController@index',
+			// 'middleware'		=> 'jwt|company:read-akta',
+		]
+	);
+	
+	$app->get('/lihat/isi/akta',
+		[
+			'uses'				=> 'AktaController@show',
+			// 'middleware'		=> 'jwt|company:read-akta',
+		]
+	);
+
+	$app->get('/print/akta',
+		[
+			'uses'				=> 'AktaController@print',
+			// 'middleware'		=> 'jwt|company:read-akta',
 		]
 	);
 });

@@ -16,15 +16,15 @@ use App\Http\Mq\MessageQueueCaller;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Collection;
 
-use App\Http\Transformers\ListAktaTransformer;
-use App\Http\Transformers\IsiAktaTransformer;
+use App\Http\Transformers\ListTemplateAktaTransformer;
+use App\Http\Transformers\IsiTemplateAktaTransformer;
 
 /**
- * Draft Akta  resource representation.
+ * Template Akta  resource representation.
  *
- * @Resource("Draft", uri="/Draft")
+ * @Resource("Template", uri="/Template")
  */
-class DraftAktaController extends Controller
+class TemplateAktaController extends Controller
 {
 	public $corr_id;
 	public $response;
@@ -51,7 +51,7 @@ class DraftAktaController extends Controller
 		if(str_is($role, 'drafter'))
 		{
 			$ownerid 						= $this->token->getClaim('uid');
-			$search['search']['type']		= 'draft_akta';
+			$search['search']['type']		= 'akta';
 			$search['search']['ownerid']	= $ownerid;
 		}
 		else
@@ -74,7 +74,7 @@ class DraftAktaController extends Controller
 		$data 			= json_encode($attributes);
 
 		$mq 			= new MessageQueueCaller();
-		$response 		= $mq->call($data, 'tlab.document.index');
+		$response 		= $mq->call($data, 'tlab.template.index');
 
 		if(str_is($response['status'], 'success'))
 		{
@@ -96,7 +96,7 @@ class DraftAktaController extends Controller
 		if(str_is($role, 'drafter'))
 		{
 			$ownerid 						= $this->token->getClaim('uid');
-			$search['search']['type']		= 'draft_akta';
+			$search['search']['type']		= 'akta';
 			$search['search']['ownerid']	= $ownerid;
 			$search['search']['id']			= $this->request->input('id');
 		}
@@ -115,7 +115,7 @@ class DraftAktaController extends Controller
 		$data 			= json_encode($attributes);
 
 		$mq 			= new MessageQueueCaller();
-		$response 		= $mq->call($data, 'tlab.document.index');
+		$response 		= $mq->call($data, 'tlab.template.index');
 
 		if(str_is($response['status'], 'success') && count($response['data']['data']) > 1)
 		{
@@ -136,11 +136,11 @@ class DraftAktaController extends Controller
 
 		if(str_is($role, 'drafter'))
 		{
-			//a. check whose document is it
+			//a. check whose template is it
 			if(!is_null($this->request->input('id')))
 			{
 				$ownerid 						= $this->token->getClaim('uid');
-				$search['search']['type']		= 'draft_akta';
+				$search['search']['type']		= 'akta';
 				$search['search']['ownerid']	= $ownerid;
 				$search['search']['id']			= $this->request->input('id');
 
@@ -154,11 +154,11 @@ class DraftAktaController extends Controller
 				$data 			= json_encode($attributes);
 
 				$mq 			= new MessageQueueCaller();
-				$response 		= $mq->call($data, 'tlab.document.index');
+				$response 		= $mq->call($data, 'tlab.template.index');
 
 				if(!str_is($response['status'], 'success') || count($response['data']['data']) < 1)
 				{
-					return response()->json( JSend::error(['Tidak dapat menyimpan draft akta yang bukan milik Anda!'])->asArray());
+					return response()->json( JSend::error(['Tidak dapat menyimpan Template akta yang bukan milik Anda!'])->asArray());
 				}
 			}
 		}
@@ -183,7 +183,7 @@ class DraftAktaController extends Controller
 		$data 			= json_encode($attributes);
 
 		$mq 			= new MessageQueueCaller();
-		$response 		= $mq->call($data, 'tlab.document.store');
+		$response 		= $mq->call($data, 'tlab.template.store');
 
 		if(str_is($response['status'], 'success'))
 		{
@@ -204,9 +204,9 @@ class DraftAktaController extends Controller
 
 		if(str_is($role, 'drafter'))
 		{
-			//a. check whose document is it
+			//a. check whose template is it
 			$ownerid 						= $this->token->getClaim('uid');
-			$search['search']['type']		= 'draft_akta';
+			$search['search']['type']		= 'akta';
 			$search['search']['ownerid']	= $ownerid;
 			$search['search']['id']			= $this->request->input('id');
 
@@ -220,11 +220,11 @@ class DraftAktaController extends Controller
 			$data 			= json_encode($attributes);
 
 			$mq 			= new MessageQueueCaller();
-			$response 		= $mq->call($data, 'tlab.document.index');
+			$response 		= $mq->call($data, 'tlab.template.index');
 
 			if(!str_is($response['status'], 'success') || count($response['data']['data']) < 1)
 			{
-				return response()->json( JSend::error(['Tidak dapat menghapus draft akta yang bukan milik Anda!'])->asArray());
+				return response()->json( JSend::error(['Tidak dapat menghapus Template akta yang bukan milik Anda!'])->asArray());
 			}
 		}
 		else
@@ -245,7 +245,7 @@ class DraftAktaController extends Controller
 		$data 			= json_encode($attributes);
 
 		$mq 			= new MessageQueueCaller();
-		$response 		= $mq->call($data, 'tlab.document.delete');
+		$response 		= $mq->call($data, 'tlab.template.delete');
 
 		if(str_is($response['status'], 'success'))
 		{
@@ -263,10 +263,10 @@ class DraftAktaController extends Controller
 	 *
 	 * getStructureMultiple method used to transforming response format and included UI inside (@UInside)
 	 */
-	public function getStructureMultiple($draft)
+	public function getStructureMultiple($Template)
 	{
 		$fractal		= new Manager();
-		$resource 		= new Collection($draft, new ListAktaTransformer);
+		$resource 		= new Collection($Template, new ListTemplateAktaTransformer);
 
 		// Turn that into a structured array (handy for XML views or auto-YAML converting)
 		$array			= $fractal->createData($resource)->toArray();
@@ -279,10 +279,10 @@ class DraftAktaController extends Controller
 	 *
 	 * getStructureMultiple method used to transforming response format and included UI inside (@UInside)
 	 */
-	public function getStructureSingle($draft)
+	public function getStructureSingle($Template)
 	{
 		$fractal		= new Manager();
-		$resource 		= new Collection($draft, new IsiAktaTransformer);
+		$resource 		= new Collection($Template, new IsiTemplateAktaTransformer);
 
 		// Turn that into a structured array (handy for XML views or auto-YAML converting)
 		$array			= $fractal->createData($resource)->toArray();
