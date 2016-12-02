@@ -97,7 +97,7 @@ class TemplateAktaController extends Controller
 		if(str_is($role, 'drafter'))
 		{
 			$ownerid 						= $this->token->getClaim('oid');
-			$search['search']['type']		= ['akta', 'void_akta'];
+			$search['search']['type']		= ['akta', 'void_akta', 'draft_akta'];
 			$search['search']['ownerid']	= $ownerid;
 			$search['search']['id']			= $this->request->input('id');
 			$search['search']['ownertype']	= 'organization';
@@ -119,13 +119,13 @@ class TemplateAktaController extends Controller
 		$mq 			= new MessageQueueCaller();
 		$response 		= $mq->call($data, 'tlab.template.index');
 
-		if(str_is($response['status'], 'success') && count($response['data']['data']) > 1)
+		if(str_is($response['status'], 'success') && count($response['data']['data']) > 0)
 		{
-			$response['data']	= $this->getStructureSingle($response['data']['data'])[0];
+			$response['data']['data']	= $this->getStructureSingle($response['data']['data'])[0];
 		}
 		else
 		{
-			return response()->json( JSend::error(['Tidak dapat menampilkan Template akta yang belum selesai dikerjakan!'])->asArray());
+			$response['data']['data']	= $this->getStructureSingle($this->dummy());
 		}
 		
 		$response 	= json_encode($response);
@@ -324,6 +324,11 @@ class TemplateAktaController extends Controller
 		$array			= $fractal->createData($resource)->toArray();
 
 		return $array['data'];
+	}
+
+	public function dummy()
+	{
+		return [['_id' => '123456789', 'title' => 'Akta Jual Beli Tanah', 'writer' => ['_id' => '123456789', 'name' => 'Ada Lovelace'], 'owner' => ['_id' => '123456789', 'name' => 'Thunderlab Indonesia'], 'created_at' => null, 'updated_at' => null, 'deleted_at' => null, 'paragraph' => [['content' => 'Isi Akta']]]];
 	}
 }
 

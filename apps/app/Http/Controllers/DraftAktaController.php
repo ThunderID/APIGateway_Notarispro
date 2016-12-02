@@ -121,9 +121,13 @@ class DraftAktaController extends Controller
 		$mq 			= new MessageQueueCaller();
 		$response 		= $mq->call($data, 'tlab.document.index');
 
-		if(str_is($response['status'], 'success') && count($response['data']['data']) > 1)
+		if(str_is($response['status'], 'success') && count($response['data']['data']) > 0)
 		{
-			$response['data']	= $this->getStructureSingle($response['data']['data'])[0];
+			$response['data']['data']	= $this->getStructureSingle($response['data']['data'])[0];
+		}
+		else
+		{
+			$response['data']['data']	= $this->getStructureSingle($this->dummy());
 		}
 		
 		$response 	= json_encode($response);
@@ -318,6 +322,11 @@ class DraftAktaController extends Controller
 		$array			= $fractal->createData($resource)->toArray();
 
 		return $array['data'];
+	}
+
+	public function dummy()
+	{
+		return [['_id' => '123456789', 'title' => 'Akta Jual Beli Tanah', 'type' => 'draft_akta', 'writer' => ['_id' => '123456789', 'name' => 'Ada Lovelace'], 'owner' => ['_id' => '123456789', 'name' => 'Thunderlab Indonesia'], 'created_at' => null, 'updated_at' => null, 'deleted_at' => null, 'paragraph' => [['content' => 'Isi Akta']]]];
 	}
 }
 
