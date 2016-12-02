@@ -48,35 +48,49 @@ $app->group(['namespace' => 'App\Http\Controllers'], function ($app)
 		]
 	);
 	
-	$app->get('/lihat/list/draft',
+	$app->post('/issue/template',
+		[
+			'uses'				=> 'TemplateAktaController@issue',
+			// 'middleware'		=> 'jwt|company:store-akta',
+		]
+	);
+	
+	$app->post('/void/template',
+		[
+			'uses'				=> 'TemplateAktaController@void',
+			// 'middleware'		=> 'jwt|company:store-akta',
+		]
+	);
+
+	$app->get('/lihat/list/draft/akta',
 		[
 			'uses'				=> 'DraftAktaController@index',
 			// 'middleware'		=> 'jwt|company:read-akta',
 		]
 	);
 
-	$app->get('/lihat/isi/draft',
+	$app->get('/lihat/isi/draft/akta',
 		[
 			'uses'				=> 'DraftAktaController@show',
 			// 'middleware'		=> 'jwt|company:read-akta',
 		]
 	);
 
-	$app->post('/simpan/draft',
+	$app->post('/simpan/draft/akta',
 		[
 			'uses'				=> 'DraftAktaController@store',
 			// 'middleware'		=> 'jwt|company:store-akta',
 		]
 	);
 
-	$app->delete('/hapus/draft',
+	$app->delete('/hapus/draft/akta',
 		[
 			'uses'				=> 'DraftAktaController@delete',
 			// 'middleware'		=> 'jwt|company:delete-akta',
 		]
 	);
 
-	$app->post('/issue/proposed/akta',
+	$app->post('/issue/draft/akta',
 		[
 			'uses'				=> 'DraftAktaController@issue',
 			// 'middleware'		=> 'jwt|company:store-akta',

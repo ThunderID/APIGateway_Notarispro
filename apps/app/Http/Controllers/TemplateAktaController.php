@@ -50,9 +50,10 @@ class TemplateAktaController extends Controller
 
 		if(str_is($role, 'drafter'))
 		{
-			$ownerid 						= $this->token->getClaim('uid');
-			$search['search']['type']		= 'akta';
+			$ownerid 						= $this->token->getClaim('oid');
+			$search['search']['type']		= ['akta', 'draft_akta', 'void_akta'];
 			$search['search']['ownerid']	= $ownerid;
+			$search['search']['ownertype']	= 'organization';
 		}
 		else
 		{
@@ -95,10 +96,11 @@ class TemplateAktaController extends Controller
 
 		if(str_is($role, 'drafter'))
 		{
-			$ownerid 						= $this->token->getClaim('uid');
-			$search['search']['type']		= 'akta';
+			$ownerid 						= $this->token->getClaim('oid');
+			$search['search']['type']		= ['akta', 'void_akta'];
 			$search['search']['ownerid']	= $ownerid;
 			$search['search']['id']			= $this->request->input('id');
+			$search['search']['ownertype']	= 'organization';
 		}
 		else
 		{
@@ -121,6 +123,10 @@ class TemplateAktaController extends Controller
 		{
 			$response['data']	= $this->getStructureSingle($response['data']['data'])[0];
 		}
+		else
+		{
+			return response()->json( JSend::error(['Tidak dapat menampilkan Template akta yang belum selesai dikerjakan!'])->asArray());
+		}
 		
 		$response 	= json_encode($response);
 
@@ -128,20 +134,26 @@ class TemplateAktaController extends Controller
 		return $response;
 	}
 
-	public function store()
+	public function store($status = 'draft_akta', $prev_status = 'draft_akta')
 	{
 		//Check 
 		//1. if JWT is drafter, display only my
 		$role 		= $this->token->getClaim('role');
+
+		$ownerid 	= $this->token->getClaim('oid');
+		$ownername 	= $this->token->getClaim('oname');
+		$writerid 	= $this->token->getClaim('pid');
+		$writername = $this->token->getClaim('pname');
 
 		if(str_is($role, 'drafter'))
 		{
 			//a. check whose template is it
 			if(!is_null($this->request->input('id')))
 			{
-				$ownerid 						= $this->token->getClaim('uid');
-				$search['search']['type']		= 'akta';
+				$search['search']['type']		= $prev_status;
 				$search['search']['ownerid']	= $ownerid;
+				$search['search']['writerid']	= $writerid;
+				$search['search']['ownertype']	= 'organization';
 				$search['search']['id']			= $this->request->input('id');
 
 				$attributes 	= 	[
@@ -167,12 +179,23 @@ class TemplateAktaController extends Controller
 			throw new \Exception('invalid role');
 		}
 
-		$body 					= $this->request->input();
-		$body['writer']['_id']	= $body['writer']['id'];
-		$body['owner']['_id']	= $body['owner']['id'];
-		unset($body['writer']['id']);
-		unset($body['owner']['id']);
+		if(in_array($status, ['akta', 'void_akta']))
+		{
+			$body 					= $response['data']['data'][0];
+			$body['id'] 			= $response['data']['data'][0]['_id'];
+		}
+		else
+		{
+			$body 					= $this->request->input();
+		}
 
+		$body['writer']['_id']		= $writerid;
+		$body['writer']['name']		= $writername;
+		$body['owner']['_id']		= $ownerid;
+		$body['owner']['type']		= 'organization';
+		$body['owner']['name']		= $ownername;
+		$body['type']				= $status;
+		
 		$attributes 	= 	[
 								'header'	=>
 												[
@@ -198,16 +221,19 @@ class TemplateAktaController extends Controller
 
 	public function delete()
 	{
-				//Check 
+		//Check 
 		//1. if JWT is drafter, display only my
 		$role 		= $this->token->getClaim('role');
 
 		if(str_is($role, 'drafter'))
 		{
 			//a. check whose template is it
-			$ownerid 						= $this->token->getClaim('uid');
-			$search['search']['type']		= 'akta';
+			$ownerid 						= $this->token->getClaim('oid');
+			$writerid 						= $this->token->getClaim('pid');
+			$search['search']['type']		= 'draft_akta';
 			$search['search']['ownerid']	= $ownerid;
+			$search['search']['ownertype']	= 'organization';
+			$search['search']['writerid']	= $writerid;
 			$search['search']['id']			= $this->request->input('id');
 
 			$attributes 	= 	[
@@ -224,7 +250,7 @@ class TemplateAktaController extends Controller
 
 			if(!str_is($response['status'], 'success') || count($response['data']['data']) < 1)
 			{
-				return response()->json( JSend::error(['Tidak dapat menghapus Template akta yang bukan milik Anda!'])->asArray());
+				return response()->json( JSend::error(['Tidak dapat menghapus template akta yang sudah di published/bukan milik Anda!'])->asArray());
 			}
 		}
 		else
@@ -256,6 +282,16 @@ class TemplateAktaController extends Controller
 
 		//2. transform returned value
 		return $response;
+	}
+
+	public function issue()
+	{
+		return $this->store('akta', 'draft_akta');
+	}
+
+	public function void()
+	{
+		return $this->store('void_akta', 'akta');
 	}
 
 	/**

@@ -50,9 +50,11 @@ class DraftAktaController extends Controller
 
 		if(str_is($role, 'drafter'))
 		{
-			$ownerid 						= $this->token->getClaim('uid');
+			$writerid 						= $this->token->getClaim('pid');
 			$search['search']['type']		= 'draft_akta';
-			$search['search']['ownerid']	= $ownerid;
+			$search['search']['writerid']	= $writerid;
+			$search['search']['ownerid']	= $writerid;
+			$search['search']['ownertype']	= 'person';
 		}
 		else
 		{
@@ -95,9 +97,11 @@ class DraftAktaController extends Controller
 
 		if(str_is($role, 'drafter'))
 		{
-			$ownerid 						= $this->token->getClaim('uid');
+			$writerid 						= $this->token->getClaim('pid');
 			$search['search']['type']		= 'draft_akta';
-			$search['search']['ownerid']	= $ownerid;
+			$search['search']['writerid']	= $writerid;
+			$search['search']['ownerid']	= $writerid;
+			$search['search']['ownertype']	= 'person';
 			$search['search']['id']			= $this->request->input('id');
 		}
 		else
@@ -128,20 +132,25 @@ class DraftAktaController extends Controller
 		return $response;
 	}
 
-	public function store()
+	public function store($status = 'draft_akta', $prev_status = 'draft_akta')
 	{
 		//Check 
 		//1. if JWT is drafter, display only my
 		$role 		= $this->token->getClaim('role');
+		$ownerid 	= $this->token->getClaim('oid');
+		$ownername 	= $this->token->getClaim('oname');
+		$writerid 	= $this->token->getClaim('pid');
+		$writername = $this->token->getClaim('pname');
 
 		if(str_is($role, 'drafter'))
 		{
 			//a. check whose document is it
 			if(!is_null($this->request->input('id')))
 			{
-				$ownerid 						= $this->token->getClaim('uid');
-				$search['search']['type']		= 'draft_akta';
-				$search['search']['ownerid']	= $ownerid;
+				$search['search']['type']		= $prev_status;
+				$search['search']['writerid']	= $writerid;
+				$search['search']['ownerid']	= $writerid;
+				$search['search']['ownertype']	= 'person';
 				$search['search']['id']			= $this->request->input('id');
 
 				$attributes 	= 	[
@@ -167,11 +176,25 @@ class DraftAktaController extends Controller
 			throw new \Exception('invalid role');
 		}
 
-		$body 					= $this->request->input();
-		$body['writer']['_id']	= $body['writer']['id'];
-		$body['owner']['_id']	= $body['owner']['id'];
-		unset($body['writer']['id']);
-		unset($body['owner']['id']);
+		if(in_array($status, ['akta']))
+		{
+			$body 					= $response['data']['data'][0];
+			$body['id'] 			= $response['data']['data'][0]['_id'];
+			$body['owner']['_id']	= $ownerid;
+			$body['owner']['type']	= 'organization';
+			$body['owner']['name']	= $ownername;
+		}
+		else
+		{
+			$body 					= $this->request->input();
+			$body['owner']['_id']	= $writerid;
+			$body['owner']['type']	= 'person';
+			$body['owner']['name']	= $writername;
+		}
+
+		$body['writer']['_id']		= $writerid;
+		$body['writer']['name']		= $writername;
+		$body['type']				= $status;
 
 		$attributes 	= 	[
 								'header'	=>
@@ -205,9 +228,11 @@ class DraftAktaController extends Controller
 		if(str_is($role, 'drafter'))
 		{
 			//a. check whose document is it
-			$ownerid 						= $this->token->getClaim('uid');
+			$writerid 						= $this->token->getClaim('pid');
 			$search['search']['type']		= 'draft_akta';
-			$search['search']['ownerid']	= $ownerid;
+			$search['search']['writerid']	= $writerid;
+			$search['search']['ownerid']	= $writerid;
+			$search['search']['ownertype']	= 'person';
 			$search['search']['id']			= $this->request->input('id');
 
 			$attributes 	= 	[
@@ -256,6 +281,11 @@ class DraftAktaController extends Controller
 
 		//2. transform returned value
 		return $response;
+	}
+
+	public function issue()
+	{
+		return $this->store('akta', 'draft_akta');
 	}
 
 	/**

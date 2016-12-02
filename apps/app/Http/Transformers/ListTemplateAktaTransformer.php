@@ -23,6 +23,11 @@ class ListTemplateAktaTransformer extends TransformerAbstract
 										'validation'	=> ['required' => true],
 									],
 									[
+										'name' 			=> 'type',
+										'value'			=> $value['type'],
+										'validation'	=> ['required' => true],
+									],
+									[
 										'name' 			=> 'writer.id',
 										'value'			=> $value['writer']['_id'],
 										'validation'	=> ['required' => true],
