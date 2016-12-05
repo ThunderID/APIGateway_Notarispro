@@ -58,7 +58,7 @@ class JWTMiddleware
                         ->set('oid', $token->getClaim('oid')) // Configures a new claim, called "uid"
                         ->set('pname', $token->getClaim('pname')) // Configures a new claim, called "uid"
                         ->set('oname', $token->getClaim('oname')) // Configures a new claim, called "uid"
-                        ->set('role', $token->getClaim('role')) // Configures a new claim, called "uid"
+                        ->set('role', 'drafter') // Configures a new claim, called "uid"
                         ->sign($signer,  $keychain->getPrivateKey(file_get_contents('private_rsa.key')))
                         ->getToken(); // Retrieves the generated token
 

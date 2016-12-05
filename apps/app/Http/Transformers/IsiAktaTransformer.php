@@ -16,7 +16,7 @@ class IsiAktaTransformer extends TransformerAbstract
 		$minor 			= $fractal->createData($resource)->toArray();
 
 	    $major = [
-			    'fragment' 	=> ['id' => $value['_id']],
+			    'info' 		=> ['id' => $value['_id']],
 	    		'elements' 	=> [
 					    		[	
 					    			'element-class'			=> 'input',
@@ -39,7 +39,7 @@ class IsiAktaTransformer extends TransformerAbstract
 					    			'element-class'			=> 'input',
 					    			'element-type'			=> 'string',
 					    			'element-properties'	=> 	[
-					    											'name'	=> 'writer.id',
+					    											'name'	=> 'writer_id',
 					    											'value'	=> $value['writer']['_id'],
 					    										],
 					    		],
@@ -47,7 +47,7 @@ class IsiAktaTransformer extends TransformerAbstract
 					    			'element-class'			=> 'input',
 					    			'element-type'			=> 'string',
 					    			'element-properties'	=> 	[
-					    											'name'	=> 'writer.name',
+					    											'name'	=> 'writer_name',
 					    											'value'	=> $value['writer']['name'],
 					    										],
 					    		],
@@ -55,7 +55,7 @@ class IsiAktaTransformer extends TransformerAbstract
 					    			'element-class'			=> 'input',
 					    			'element-type'			=> 'string',
 					    			'element-properties'	=> 	[
-					    											'name'	=> 'owner.id',
+					    											'name'	=> 'owner_id',
 					    											'value'	=> $value['owner']['_id'],
 					    										],
 					    		],
@@ -63,7 +63,7 @@ class IsiAktaTransformer extends TransformerAbstract
 					    			'element-class'			=> 'input',
 					    			'element-type'			=> 'string',
 					    			'element-properties'	=> 	[
-					    											'name'	=> 'owner.name',
+					    											'name'	=> 'owner_name',
 					    											'value'	=> $value['owner']['name'],
 					    										],
 					    		],
