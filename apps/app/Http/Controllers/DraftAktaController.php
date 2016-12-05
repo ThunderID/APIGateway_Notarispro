@@ -69,7 +69,7 @@ class DraftAktaController extends Controller
 		$attributes 	= 	[
 								'header'	=>
 												[
-													'token'		=> $this->request->header('Authorization'),
+													'token'		=>  $this->get_new_token($this->token),
 												],
 								'body'		=> 	$search,
 							];
@@ -112,7 +112,7 @@ class DraftAktaController extends Controller
 		$attributes 	= 	[
 								'header'	=>
 												[
-													'token'		=> $this->request->header('Authorization'),
+													'token'		=>  $this->get_new_token($this->token),
 												],
 								'body'		=> 	$search,
 							];
@@ -160,7 +160,7 @@ class DraftAktaController extends Controller
 				$attributes 	= 	[
 										'header'	=>
 														[
-															'token'		=> $this->request->header('Authorization'),
+															'token'		=>  $this->get_new_token($this->token),
 														],
 										'body'		=> 	$search,
 									];
@@ -203,7 +203,7 @@ class DraftAktaController extends Controller
 		$attributes 	= 	[
 								'header'	=>
 												[
-													'token'		=> $this->request->header('Authorization'),
+													'token'		=>  $this->get_new_token($this->token),
 												],
 								'body'		=> 	$body,
 							];
@@ -242,7 +242,7 @@ class DraftAktaController extends Controller
 			$attributes 	= 	[
 									'header'	=>
 													[
-														'token'		=> $this->request->header('Authorization'),
+														'token'		=>  $this->get_new_token($this->token),
 													],
 									'body'		=> 	$search,
 								];
@@ -266,7 +266,7 @@ class DraftAktaController extends Controller
 		$attributes 	= 	[
 								'header'	=>
 												[
-													'token'		=> $this->request->header('Authorization'),
+													'token'		=>  $this->get_new_token($this->token),
 												],
 								'body'		=> 	$body,
 							];
