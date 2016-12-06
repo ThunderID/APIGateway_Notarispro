@@ -11,14 +11,10 @@ use Illuminate\Http\Request;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Builder;
 
-use App\Http\Mq\MessageQueueCaller;
-
 use League\Fractal\Manager;
 use League\Fractal\Resource\Collection;
 
-use App\Http\Transformers\ListAktaTransformer;
-use App\Http\Transformers\IsiAktaTransformer;
-use App\Http\Transformers\IsiAktaEditableTransformer;
+use App\Http\Mq\AktaCaller;
 
 /**
  * Draft Akta  resource representation.
@@ -62,32 +58,9 @@ class DraftAktaController extends Controller
 			throw new \Exception('invalid role');
 		}
 
-		$per_page 					= (!is_null($this->request->input('per_page')) ? $this->request->input('per_page') : 20);
-		$page 						= (!is_null($this->request->input('page')) ? max(1, $this->request->input('page')) : 1);
-		$search['skip']				= max(0, ($page - 1)) * $per_page;
-		$search['take']				= $per_page;
+		$akta 		= new AktaCaller;
 
-		$attributes 	= 	[
-								'header'	=>
-												[
-													'token'		=>  $this->get_new_token($this->token),
-												],
-								'body'		=> 	$search,
-							];
-		$data 			= json_encode($attributes);
-
-		$mq 			= new MessageQueueCaller();
-		$response 		= $mq->call($data, 'tlab.document.index');
-
-		if(str_is($response['status'], 'success'))
-		{
-			$response['data']['data']	= $this->getStructureMultiple($response['data']['data']);
-		}
-		
-		$response 	= json_encode($response);
-
-		//2. transform returned value
-		return $response;
+		return $akta->index_caller($search, $this->request, $this->get_new_token($this->token));
 	}
 
 	public function show()
@@ -110,31 +83,9 @@ class DraftAktaController extends Controller
 			throw new \Exception('invalid role');
 		}
 
-		$attributes 	= 	[
-								'header'	=>
-												[
-													'token'		=>  $this->get_new_token($this->token),
-												],
-								'body'		=> 	$search,
-							];
-		$data 			= json_encode($attributes);
+		$akta 		= new AktaCaller;
 
-		$mq 			= new MessageQueueCaller();
-		$response 		= $mq->call($data, 'tlab.document.index');
-
-		if(str_is($response['status'], 'success') && count($response['data']['data']) > 0)
-		{
-			$response['data']['data']	= $this->getStructureSingle($response['data']['data'])[0];
-		}
-		else
-		{
-			return response()->json( JSend::error(['Tidak dapat melihat draft Akta yang bukan milik Anda!'])->asArray());
-		}
-		
-		$response 	= json_encode($response);
-
-		//2. transform returned value
-		return $response;
+		return $akta->show_caller($search, $this->request, $this->get_new_token($this->token));
 	}
 
 	public function edit()
@@ -157,31 +108,9 @@ class DraftAktaController extends Controller
 			throw new \Exception('invalid role');
 		}
 
-		$attributes 	= 	[
-								'header'	=>
-												[
-													'token'		=>  $this->get_new_token($this->token),
-												],
-								'body'		=> 	$search,
-							];
-		$data 			= json_encode($attributes);
+		$akta 		= new AktaCaller;
 
-		$mq 			= new MessageQueueCaller();
-		$response 		= $mq->call($data, 'tlab.document.index');
-
-		if(str_is($response['status'], 'success') && count($response['data']['data']) > 0)
-		{
-			$response['data']['data']	= $this->getEditableSingle($response['data']['data'])[0];
-		}
-		else
-		{
-			$response['data']['data']	= $this->getEditableSingle($this->dummy());
-		}
-		
-		$response 	= json_encode($response);
-
-		//2. transform returned value
-		return $response;
+		return $akta->edit_caller($search, $this->request, $this->get_new_token($this->token));
 	}
 
 	public function store($status = 'draft_akta', $prev_status = 'draft_akta')
@@ -205,17 +134,11 @@ class DraftAktaController extends Controller
 				$search['search']['ownertype']	= 'person';
 				$search['search']['id']			= $this->request->input('id');
 
-				$attributes 	= 	[
-										'header'	=>
-														[
-															'token'		=>  $this->get_new_token($this->token),
-														],
-										'body'		=> 	$search,
-									];
-				$data 			= json_encode($attributes);
+				$akta 		= new AktaCaller;
 
-				$mq 			= new MessageQueueCaller();
-				$response 		= $mq->call($data, 'tlab.document.index');
+				$response 	= $akta->show_caller($search, $this->request, $this->get_new_token($this->token));
+
+				$response 	= json_decode($response, true);
 
 				if(!str_is($response['status'], 'success') || count($response['data']['data']) < 1)
 				{
@@ -228,7 +151,7 @@ class DraftAktaController extends Controller
 			throw new \Exception('invalid role');
 		}
 
-		if(in_array($status, ['akta']))
+		if(in_array($status, ['proposed_akta']))
 		{
 			$body 					= $response['data']['data'][0];
 			$body['id'] 			= $response['data']['data'][0]['_id'];
@@ -242,43 +165,25 @@ class DraftAktaController extends Controller
 			$body['owner']['_id']	= $writerid;
 			$body['owner']['type']	= 'person';
 			$body['owner']['name']	= $writername;
+
+			foreach ($body['paragraph'] as $key => $value) 
+			{
+				$body['paragraph'][$key]= ['content' => $value];
+			}
 		}
 
 		$body['writer']['_id']		= $writerid;
 		$body['writer']['name']		= $writername;
 		$body['type']				= $status;
 
-		foreach ($body['paragraph'] as $key => $value) 
-		{
-			$body['paragraph'][$key]= ['content' => $value];
-		}
+		$akta 		= new AktaCaller;
 
-		$attributes 	= 	[
-								'header'	=>
-												[
-													'token'		=>  $this->get_new_token($this->token),
-												],
-								'body'		=> 	$body,
-							];
-		$data 			= json_encode($attributes);
-
-		$mq 			= new MessageQueueCaller();
-		$response 		= $mq->call($data, 'tlab.document.store');
-
-		if(str_is($response['status'], 'success'))
-		{
-			$response['data']	= $this->getStructureSingle([$response['data']]);
-		}
-		
-		$response 		= json_encode($response);
-
-		//2. transform returned value
-		return $response;
+		return $akta->store_caller($body, $this->request, $this->get_new_token($this->token));
 	}
 
 	public function delete()
 	{
-				//Check 
+		//Check 
 		//1. if JWT is drafter, display only my
 		$role 		= $this->token->getClaim('role');
 
@@ -292,18 +197,12 @@ class DraftAktaController extends Controller
 			$search['search']['ownertype']	= 'person';
 			$search['search']['id']			= $this->request->input('id');
 
-			$attributes 	= 	[
-									'header'	=>
-													[
-														'token'		=>  $this->get_new_token($this->token),
-													],
-									'body'		=> 	$search,
-								];
-			$data 			= json_encode($attributes);
+			$akta 		= new AktaCaller;
 
-			$mq 			= new MessageQueueCaller();
-			$response 		= $mq->call($data, 'tlab.document.index');
+			$response 	= $akta->show_caller($search, $this->request, $this->get_new_token($this->token));
 
+			$response 	= json_decode($response, true);
+			
 			if(!str_is($response['status'], 'success') || count($response['data']['data']) < 1)
 			{
 				return response()->json( JSend::error(['Tidak dapat menghapus draft akta yang bukan milik Anda!'])->asArray());
@@ -314,88 +213,16 @@ class DraftAktaController extends Controller
 			throw new \Exception('invalid role');
 		}
 
-		$body['id']		= $this->request->input('id');
+		$body['id']	= $this->request->input('id');
 
-		$attributes 	= 	[
-								'header'	=>
-												[
-													'token'		=>  $this->get_new_token($this->token),
-												],
-								'body'		=> 	$body,
-							];
+		$akta 		= new AktaCaller;
 
-		$data 			= json_encode($attributes);
-
-		$mq 			= new MessageQueueCaller();
-		$response 		= $mq->call($data, 'tlab.document.delete');
-
-		if(str_is($response['status'], 'success'))
-		{
-			$response['data']	= $this->getStructureSingle([$response['data']]);
-		}
-		
-		$response 		= json_encode($response);
-
-		//2. transform returned value
-		return $response;
+		return $akta->edit_caller($body, $this->request, $this->get_new_token($this->token));
 	}
 
 	public function issue()
 	{
-		return $this->store('akta', 'draft_akta');
-	}
-
-	/**
-	 * Fractal Modifying Returned Value
-	 *
-	 * getStructureMultiple method used to transforming response format and included UI inside (@UInside)
-	 */
-	public function getStructureMultiple($draft)
-	{
-		$fractal		= new Manager();
-		$resource 		= new Collection($draft, new ListAktaTransformer);
-
-		// Turn that into a structured array (handy for XML views or auto-YAML converting)
-		$array			= $fractal->createData($resource)->toArray();
-
-		return $array['data'];
-	}
-
-	/**
-	 * Fractal Modifying Returned Value
-	 *
-	 * getStructureMultiple method used to transforming response format and included UI inside (@UInside)
-	 */
-	public function getStructureSingle($draft)
-	{
-		$fractal		= new Manager();
-		$resource 		= new Collection($draft, new IsiAktaTransformer);
-
-		// Turn that into a structured array (handy for XML views or auto-YAML converting)
-		$array			= $fractal->createData($resource)->toArray();
-
-		return $array['data'];
-	}
-
-	/**
-	 * Fractal Modifying Returned Value
-	 *
-	 * getStructureMultiple method used to transforming response format and included UI inside (@UInside)
-	 */
-	public function getEditableSingle($draft)
-	{
-		$fractal		= new Manager();
-		$resource 		= new Collection($draft, new IsiAktaEditableTransformer);
-
-		// Turn that into a structured array (handy for XML views or auto-YAML converting)
-		$array			= $fractal->createData($resource)->toArray();
-
-		return $array['data'];
-	}
-
-	public function dummy()
-	{
-		return [['_id' => '123456789', 'title' => 'Akta Jual Beli Tanah', 'type' => 'draft_akta', 'writer' => ['_id' => '123456789', 'name' => 'Ada Lovelace'], 'owner' => ['_id' => '123456789', 'name' => 'Thunderlab Indonesia'], 'created_at' => null, 'updated_at' => null, 'deleted_at' => null, 'paragraph' => [['content' => 'Isi Akta']]]];
+		return $this->store('proposed_akta', 'draft_akta');
 	}
 }
 
