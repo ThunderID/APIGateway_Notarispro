@@ -20,42 +20,63 @@ $app->get('/', function () use ($app)
 $app->group(['namespace' => 'App\Http\Controllers'], function ($app) 
 {
 	//Sprint I
-	$app->get('/lihat/list/template',
+	$app->get('/lihat/list/template/akta',
 		[
 			'uses'				=> 'TemplateAktaController@index',
 			// 'middleware'		=> 'jwt|company:read-akta',
 		]
 	);
 
-	$app->get('/lihat/isi/template',
+	$app->get('/lihat/isi/template/akta',
 		[
 			'uses'				=> 'TemplateAktaController@show',
 			// 'middleware'		=> 'jwt|company:read-akta',
 		]
 	);
 
-	$app->post('/simpan/template',
+	$app->get('/mulai/template/akta',
+		[
+			'uses'				=> 'TemplateAktaController@edit',
+			// 'middleware'		=> 'jwt|company:read-akta',
+		]
+	);
+
+	$app->get('/edit/isi/template/akta',
+		[
+			'uses'				=> 'TemplateAktaController@edit',
+			// 'middleware'		=> 'jwt|company:read-akta',
+		]
+	);
+	
+	$app->post('/simpan/template/akta',
+		[
+			'uses'				=> 'TemplateAktaController@store',
+			// 'middleware'		=> 'jwt|company:store-akta',
+		]
+	);
+	
+	$app->post('/update/template/akta',
 		[
 			'uses'				=> 'TemplateAktaController@store',
 			// 'middleware'		=> 'jwt|company:store-akta',
 		]
 	);
 
-	$app->delete('/hapus/template',
+	$app->delete('/hapus/template/akta',
 		[
 			'uses'				=> 'TemplateAktaController@delete',
 			// 'middleware'		=> 'jwt|company:delete-akta',
 		]
 	);
 	
-	$app->post('/issue/template',
+	$app->post('/issue/template/akta',
 		[
 			'uses'				=> 'TemplateAktaController@issue',
 			// 'middleware'		=> 'jwt|company:store-akta',
 		]
 	);
 	
-	$app->post('/void/template',
+	$app->post('/void/template/akta',
 		[
 			'uses'				=> 'TemplateAktaController@void',
 			// 'middleware'		=> 'jwt|company:store-akta',
@@ -91,6 +112,13 @@ $app->group(['namespace' => 'App\Http\Controllers'], function ($app)
 	);
 
 	$app->post('/simpan/draft/akta',
+		[
+			'uses'				=> 'DraftAktaController@store',
+			// 'middleware'		=> 'jwt|company:store-akta',
+		]
+	);
+	
+	$app->post('/update/draft/akta',
 		[
 			'uses'				=> 'DraftAktaController@store',
 			// 'middleware'		=> 'jwt|company:store-akta',
