@@ -200,6 +200,11 @@ class DraftAktaController extends Controller
 		$body['writer']['name']		= $writername;
 		$body['type']				= $status;
 
+		foreach ($body['paragraph'] as $key => $value) 
+		{
+			$body['paragraph'][$key]= ['content' => $value];
+		}
+
 		$attributes 	= 	[
 								'header'	=>
 												[
