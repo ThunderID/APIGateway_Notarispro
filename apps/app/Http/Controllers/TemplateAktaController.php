@@ -195,6 +195,11 @@ class TemplateAktaController extends Controller
 		$body['owner']['type']		= 'organization';
 		$body['owner']['name']		= $ownername;
 		$body['type']				= $status;
+
+		foreach ($body['paragraph'] as $key => $value) 
+		{
+			$body['paragraph'][$key]= ['content' => $value];
+		}
 		
 		$attributes 	= 	[
 								'header'	=>
