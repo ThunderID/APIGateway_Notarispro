@@ -18,6 +18,7 @@ use League\Fractal\Resource\Collection;
 
 use App\Http\Transformers\ListAktaTransformer;
 use App\Http\Transformers\IsiAktaTransformer;
+use App\Http\Transformers\IsiAktaEditableTransformer;
 
 /**
  * Draft Akta  resource representation.
@@ -127,7 +128,54 @@ class DraftAktaController extends Controller
 		}
 		else
 		{
-			$response['data']['data']	= $this->getStructureSingle($this->dummy());
+			return response()->json( JSend::error(['Tidak dapat melihat draft Akta yang bukan milik Anda!'])->asArray());
+		}
+		
+		$response 	= json_encode($response);
+
+		//2. transform returned value
+		return $response;
+	}
+
+	public function edit()
+	{
+		//Check 
+		//1. if JWT is drafter, display only my
+		$role 		= $this->token->getClaim('role');
+
+		if(str_is($role, 'drafter'))
+		{
+			$writerid 						= $this->token->getClaim('pid');
+			$search['search']['type']		= 'draft_akta';
+			$search['search']['writerid']	= $writerid;
+			$search['search']['ownerid']	= $writerid;
+			$search['search']['ownertype']	= 'person';
+			$search['search']['id']			= $this->request->input('id');
+		}
+		else
+		{
+			throw new \Exception('invalid role');
+		}
+
+		$attributes 	= 	[
+								'header'	=>
+												[
+													'token'		=>  $this->get_new_token($this->token),
+												],
+								'body'		=> 	$search,
+							];
+		$data 			= json_encode($attributes);
+
+		$mq 			= new MessageQueueCaller();
+		$response 		= $mq->call($data, 'tlab.document.index');
+
+		if(str_is($response['status'], 'success') && count($response['data']['data']) > 0)
+		{
+			$response['data']['data']	= $this->getEditableSingle($response['data']['data'])[0];
+		}
+		else
+		{
+			$response['data']['data']	= $this->getEditableSingle($this->dummy());
 		}
 		
 		$response 	= json_encode($response);
@@ -322,6 +370,22 @@ class DraftAktaController extends Controller
 	{
 		$fractal		= new Manager();
 		$resource 		= new Collection($draft, new IsiAktaTransformer);
+
+		// Turn that into a structured array (handy for XML views or auto-YAML converting)
+		$array			= $fractal->createData($resource)->toArray();
+
+		return $array['data'];
+	}
+
+	/**
+	 * Fractal Modifying Returned Value
+	 *
+	 * getStructureMultiple method used to transforming response format and included UI inside (@UInside)
+	 */
+	public function getEditableSingle($draft)
+	{
+		$fractal		= new Manager();
+		$resource 		= new Collection($draft, new IsiAktaEditableTransformer);
 
 		// Turn that into a structured array (handy for XML views or auto-YAML converting)
 		$array			= $fractal->createData($resource)->toArray();

@@ -76,6 +76,20 @@ $app->group(['namespace' => 'App\Http\Controllers'], function ($app)
 		]
 	);
 
+	$app->get('/mulai/draft/akta',
+		[
+			'uses'				=> 'DraftAktaController@edit',
+			// 'middleware'		=> 'jwt|company:read-akta',
+		]
+	);
+
+	$app->get('/edit/isi/draft/akta',
+		[
+			'uses'				=> 'DraftAktaController@edit',
+			// 'middleware'		=> 'jwt|company:read-akta',
+		]
+	);
+
 	$app->post('/simpan/draft/akta',
 		[
 			'uses'				=> 'DraftAktaController@store',
