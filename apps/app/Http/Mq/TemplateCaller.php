@@ -11,14 +11,14 @@ use App\Http\Transformers\ListAktaTransformer;
 use App\Http\Transformers\IsiAktaTransformer;
 use App\Http\Transformers\IsiAktaEditableTransformer;
 
-class AktaCaller 
+class TemplateCaller 
 {
 	public function index_caller($search, $request, $token) 
 	{
-		$per_page 					= (!is_null($request->input('per_page')) ? $request->input('per_page') : 20);
-		$page 						= (!is_null($request->input('page')) ? max(1, $request->input('page')) : 1);
-		$search['skip']				= max(0, ($page - 1)) * $per_page;
-		$search['take']				= $per_page;
+		$per_page 		= (!is_null($request->input('per_page')) ? $request->input('per_page') : 20);
+		$page 			= (!is_null($request->input('page')) ? max(1, $request->input('page')) : 1);
+		$search['skip']	= max(0, ($page - 1)) * $per_page;
+		$search['take']	= $per_page;
 
 		$attributes 	= 	[
 								'header'	=>
@@ -30,7 +30,7 @@ class AktaCaller
 		$data 			= json_encode($attributes);
 
 		$mq 			= new MessageQueueCaller();
-		$response 		= $mq->call($data, 'tlab.document.index');
+		$response 		= $mq->call($data, 'tlab.template.index');
 		
 		if(str_is($response['status'], 'success'))
 		{
@@ -54,11 +54,11 @@ class AktaCaller
 		$data 			= json_encode($attributes);
 
 		$mq 			= new MessageQueueCaller();
-		$response 		= $mq->call($data, 'tlab.document.index');
+		$response 		= $mq->call($data, 'tlab.template.index');
 
 		if(!str_is($response['status'], 'success') || !count($response['data']['data']) > 0)
 		{
-			$response 	= JSend::error(['Tidak dapat melihat draft Akta yang bukan milik Anda!'])->asArray();
+			$response 	= JSend::error(['Tidak dapat melihat template Akta yang bukan milik Anda!'])->asArray();
 			
 			return $response;
 		}
@@ -83,7 +83,7 @@ class AktaCaller
 		$data 			= json_encode($attributes);
 
 		$mq 			= new MessageQueueCaller();
-		$response 		= $mq->call($data, 'tlab.document.index');
+		$response 		= $mq->call($data, 'tlab.template.index');
 
 		if(str_is($response['status'], 'success') && count($response['data']['data']) > 0)
 		{
@@ -111,7 +111,7 @@ class AktaCaller
 		$data 			= json_encode($attributes);
 
 		$mq 			= new MessageQueueCaller();
-		$response 		= $mq->call($data, 'tlab.document.store');
+		$response 		= $mq->call($data, 'tlab.template.store');
 
 		//2. transform returned value
 		return $response;
@@ -130,7 +130,7 @@ class AktaCaller
 		$data 			= json_encode($attributes);
 
 		$mq 			= new MessageQueueCaller();
-		$response 		= $mq->call($data, 'tlab.document.delete');
+		$response 		= $mq->call($data, 'tlab.template.delete');
 
 		//2. transform returned value
 		return $response;
@@ -138,6 +138,6 @@ class AktaCaller
 
 	public function dummy()
 	{
-		return [['_id' => '123456789', 'title' => 'Akta Jual Beli Tanah', 'type' => 'draft_akta', 'writer' => ['_id' => '123456789', 'name' => 'Ada Lovelace'], 'owner' => ['_id' => '123456789', 'name' => 'Thunderlab Indonesia'], 'created_at' => null, 'updated_at' => null, 'deleted_at' => null, 'paragraph' => [['content' => 'Isi Akta']]]];
+		return [['_id' => '123456789', 'title' => 'Akta Jual Beli Tanah', 'writer' => ['_id' => '123456789', 'name' => 'Ada Lovelace'], 'owner' => ['_id' => '123456789', 'name' => 'Thunderlab Indonesia'], 'created_at' => null, 'updated_at' => null, 'deleted_at' => null, 'paragraph' => [['content' => 'Isi Akta']]]];
 	}
 };

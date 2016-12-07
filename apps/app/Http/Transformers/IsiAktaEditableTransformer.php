@@ -22,49 +22,9 @@ class IsiAktaEditableTransformer extends TransformerAbstract
 					    			'element-class'			=> 'input',
 					    			'element-type'			=> 'string',
 					    			'element-properties'	=> 	[
-					    											'name'	=> 'id',
-					    											'value'	=> $value['_id'],
-					    										],
-					    		],
-					    		[	
-					    			'element-class'			=> 'input',
-					    			'element-type'			=> 'string',
-					    			'element-properties'	=> 	[
 					    											'name'	=> 'title',
 					    											'value'	=> $value['title'],
 																	'validation'	=> ['required' => true, 'max' => '255'],
-					    										],
-					    		],
-					    		[	
-					    			'element-class'			=> 'input',
-					    			'element-type'			=> 'string',
-					    			'element-properties'	=> 	[
-					    											'name'	=> 'writer_id',
-					    											'value'	=> $value['writer']['_id'],
-					    										],
-					    		],
-					    		[	
-					    			'element-class'			=> 'input',
-					    			'element-type'			=> 'string',
-					    			'element-properties'	=> 	[
-					    											'name'	=> 'writer_name',
-					    											'value'	=> $value['writer']['name'],
-					    										],
-					    		],
-					    		[	
-					    			'element-class'			=> 'input',
-					    			'element-type'			=> 'string',
-					    			'element-properties'	=> 	[
-					    											'name'	=> 'owner_id',
-					    											'value'	=> $value['owner']['_id'],
-					    										],
-					    		],
-					    		[	
-					    			'element-class'			=> 'input',
-					    			'element-type'			=> 'string',
-					    			'element-properties'	=> 	[
-					    											'name'	=> 'owner_name',
-					    											'value'	=> $value['owner']['name'],
 					    										],
 					    		],
 					    		]

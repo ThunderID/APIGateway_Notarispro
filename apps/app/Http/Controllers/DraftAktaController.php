@@ -15,19 +15,25 @@ use League\Fractal\Manager;
 use League\Fractal\Resource\Collection;
 
 use App\Http\Mq\AktaCaller;
+use App\Http\Mq\LockCaller;
+
+use App\Http\Policies\AktaValidator;
+use App\Http\Policies\AktaFormattor;
+use App\Http\Policies\LockFormattor;
+
+use App\Http\Transformers\ListAktaTransformer;
+use App\Http\Transformers\IsiAktaTransformer;
+use App\Http\Transformers\IsiAktaEditableTransformer;
 
 /**
  * Draft Akta  resource representation.
  *
- * @Resource("Draft", uri="/Draft")
  */
 class DraftAktaController extends Controller
 {
-	public $corr_id;
-	public $response;
-
 	public function __construct(Request $request)
 	{
+		//Here lies all needed data, token and request
 		$this->request 		= $request;
 
 		$this->token  		= $this->request->header('Authorization');
@@ -37,20 +43,25 @@ class DraftAktaController extends Controller
 		$this->token 		= $tokens[count($tokens) - 1];
 
 		$this->token		= (new Parser())->parse((string) $this->token); // Parses from a string
+
+		//Here lies global parameter
+		$this->role 		= $this->token->getClaim('role');
+		$this->writerid 	= $this->token->getClaim('pid');
+		$this->ownerid 		= $this->token->getClaim('oid');
 	}
 
+	//Here is list of all deed drafts, only can be seen by owner of document (personally)
+	//Allowing Role : Drafter, Notary
+	//Affected Route :
+	//- lihat/isi/draft/akta
 	public function index($id = null)
 	{
-		//Check 
-		//1. if JWT is drafter, display only my
-		$role 		= $this->token->getClaim('role');
-
-		if(str_is($role, 'drafter'))
+		//1. Middleware Parse Parameter
+		if(str_is($this->role, 'drafter') || str_is($this->role, 'notary'))
 		{
-			$writerid 						= $this->token->getClaim('pid');
 			$search['search']['type']		= 'draft_akta';
-			$search['search']['writerid']	= $writerid;
-			$search['search']['ownerid']	= $writerid;
+			$search['search']['writerid']	= $this->writerid;
+			$search['search']['ownerid']	= $this->writerid;
 			$search['search']['ownertype']	= 'person';
 		}
 		else
@@ -58,23 +69,39 @@ class DraftAktaController extends Controller
 			throw new \Exception('invalid role');
 		}
 
+		//2. Mq Caller
 		$akta 		= new AktaCaller;
+		$response 	= $akta->index_caller($search, $this->request, $this->get_new_token($this->token));
 
-		return $akta->index_caller($search, $this->request, $this->get_new_token($this->token));
+		//3. Transform Return
+		if(str_is($response['status'], 'success'))
+		{
+			$fractal		= new Manager();
+			$resource 		= new Collection($response['data']['data'], new ListAktaTransformer);
+
+			// Turn that into a structured array (handy for XML views or auto-YAML converting)
+			$array			= $fractal->createData($resource)->toArray();
+
+			$response['data']['data']	= $array['data'];
+		}
+
+		$response 	= json_encode($response);
+
+		return $response;
 	}
 
+	//Here is show content of a draft deed, only can be seen by owner of document (personally)
+	//Allowing Role : Drafter, Notary
+	//Affected Route :
+	//- lihat/isi/draft/akta
 	public function show()
 	{
-		//Check 
-		//1. if JWT is drafter, display only my
-		$role 		= $this->token->getClaim('role');
-
-		if(str_is($role, 'drafter'))
+		//1. Middleware Parse Parameter
+		if(str_is($this->role, 'drafter') || str_is($this->role, 'notary'))
 		{
-			$writerid 						= $this->token->getClaim('pid');
 			$search['search']['type']		= 'draft_akta';
-			$search['search']['writerid']	= $writerid;
-			$search['search']['ownerid']	= $writerid;
+			$search['search']['writerid']	= $this->writerid;
+			$search['search']['ownerid']	= $this->writerid;
 			$search['search']['ownertype']	= 'person';
 			$search['search']['id']			= $this->request->input('id');
 		}
@@ -83,23 +110,41 @@ class DraftAktaController extends Controller
 			throw new \Exception('invalid role');
 		}
 
+		//2. Mq Caller
 		$akta 		= new AktaCaller;
+		$response 	= $akta->show_caller($search, $this->request, $this->get_new_token($this->token));
 
-		return $akta->show_caller($search, $this->request, $this->get_new_token($this->token));
+		//3. Transform Return
+		if(str_is($response['status'], 'success'))
+		{
+			$fractal		= new Manager();
+			$resource 		= new Collection($response['data']['data'], new IsiAktaTransformer);
+
+			// Turn that into a structured array (handy for XML views or auto-YAML converting)
+			$array			= $fractal->createData($resource)->toArray();
+
+			$response['data']['data']	= $array['data'][0];
+		}
+
+		$response 	= json_encode($response);
+
+		return $response;
 	}
 
+	//Here is edit content of a draft deed, only can be used by owner of document (personally)
+	//Also used by create process. If it's create then dummy data will be sent
+	//Allowing Role : Drafter, Notary
+	//Affected Route :
+	//- mulai/draft/akta
+	//- edit/isi/draft/akta
 	public function edit()
 	{
-		//Check 
-		//1. if JWT is drafter, display only my
-		$role 		= $this->token->getClaim('role');
-
-		if(str_is($role, 'drafter'))
+		//1. Middleware Parse Parameter
+		if(str_is($this->role, 'drafter') || str_is($this->role, 'notary'))
 		{
-			$writerid 						= $this->token->getClaim('pid');
 			$search['search']['type']		= 'draft_akta';
-			$search['search']['writerid']	= $writerid;
-			$search['search']['ownerid']	= $writerid;
+			$search['search']['writerid']	= $this->writerid;
+			$search['search']['ownerid']	= $this->writerid;
 			$search['search']['ownertype']	= 'person';
 			$search['search']['id']			= $this->request->input('id');
 		}
@@ -108,121 +153,203 @@ class DraftAktaController extends Controller
 			throw new \Exception('invalid role');
 		}
 
+		//2. Mq Caller
 		$akta 		= new AktaCaller;
 
-		return $akta->edit_caller($search, $this->request, $this->get_new_token($this->token));
+		$response 	= $akta->edit_caller($search, $this->request, $this->get_new_token($this->token));
+
+		//3. Transform Return
+		if(str_is($response['status'], 'success'))
+		{
+			$fractal		= new Manager();
+			$resource 		= new Collection($response['data']['data'], new IsiAktaEditableTransformer);
+
+			// Turn that into a structured array (handy for XML views or auto-YAML converting)
+			$array			= $fractal->createData($resource)->toArray();
+
+			$response['data']['data']	= $array['data'][0];
+		}
+
+		$response 	= json_encode($response);
+
+		return $response;
 	}
 
+	//Here is store content of a draft deed, only can be used by owner of document (personally)
+	//Also using to update a content of a draft deed, proposed akta, akta, and so. If it's update then it will check
+	//Allowing Role : Drafter, Notary
+	//Affected Route :
+	//- simpan/draft/akta
+	//- update/draft/akta
 	public function store($status = 'draft_akta', $prev_status = 'draft_akta')
 	{
-		//Check 
-		//1. if JWT is drafter, display only my
-		$role 		= $this->token->getClaim('role');
-		$ownerid 	= $this->token->getClaim('oid');
-		$ownername 	= $this->token->getClaim('oname');
-		$writerid 	= $this->token->getClaim('pid');
-		$writername = $this->token->getClaim('pname');
-
-		if(str_is($role, 'drafter'))
+		//1. Middleware Parse Parameter
+		if(str_is($this->role, 'drafter', 'notary'))
 		{
-			//a. check whose document is it
-			if(!is_null($this->request->input('id')))
-			{
-				$search['search']['type']		= $prev_status;
-				$search['search']['writerid']	= $writerid;
-				$search['search']['ownerid']	= $writerid;
-				$search['search']['ownertype']	= 'person';
-				$search['search']['id']			= $this->request->input('id');
-
-				$akta 		= new AktaCaller;
-
-				$response 	= $akta->show_caller($search, $this->request, $this->get_new_token($this->token));
-
-				$response 	= json_decode($response, true);
-
-				if(!str_is($response['status'], 'success') || count($response['data']['data']) < 1)
-				{
-					return response()->json( JSend::error(['Tidak dapat menyimpan draft akta yang bukan milik Anda!'])->asArray());
-				}
-			}
-		}
-		else
-		{
-			throw new \Exception('invalid role');
-		}
-
-		if(in_array($status, ['proposed_akta']))
-		{
-			$body 					= $response['data']['data'][0];
-			$body['id'] 			= $response['data']['data'][0]['_id'];
-			$body['owner']['_id']	= $ownerid;
-			$body['owner']['type']	= 'organization';
-			$body['owner']['name']	= $ownername;
-		}
-		else
-		{
-			$body 					= $this->request->input();
-			$body['owner']['_id']	= $writerid;
-			$body['owner']['type']	= 'person';
-			$body['owner']['name']	= $writername;
-
-			foreach ($body['paragraph'] as $key => $value) 
-			{
-				$body['paragraph'][$key]= ['content' => $value];
-			}
-		}
-
-		$body['writer']['_id']		= $writerid;
-		$body['writer']['name']		= $writername;
-		$body['type']				= $status;
-
-		$akta 		= new AktaCaller;
-
-		return $akta->store_caller($body, $this->request, $this->get_new_token($this->token));
-	}
-
-	public function delete()
-	{
-		//Check 
-		//1. if JWT is drafter, display only my
-		$role 		= $this->token->getClaim('role');
-
-		if(str_is($role, 'drafter'))
-		{
-			//a. check whose document is it
-			$writerid 						= $this->token->getClaim('pid');
-			$search['search']['type']		= 'draft_akta';
-			$search['search']['writerid']	= $writerid;
-			$search['search']['ownerid']	= $writerid;
+			$search['search']['type']		= $prev_status;
+			$search['search']['writerid']	= $this->writerid;
+			$search['search']['ownerid']	= $this->writerid;
 			$search['search']['ownertype']	= 'person';
 			$search['search']['id']			= $this->request->input('id');
-
-			$akta 		= new AktaCaller;
-
-			$response 	= $akta->show_caller($search, $this->request, $this->get_new_token($this->token));
-
-			$response 	= json_decode($response, true);
-			
-			if(!str_is($response['status'], 'success') || count($response['data']['data']) < 1)
-			{
-				return response()->json( JSend::error(['Tidak dapat menghapus draft akta yang bukan milik Anda!'])->asArray());
-			}
+			$this->validator 				= new AktaValidator;
 		}
 		else
 		{
 			throw new \Exception('invalid role');
 		}
 
-		$body['id']	= $this->request->input('id');
+		//2. Validating This Process on Business Rule
+		//2a. If updating, mq existence
+		if(!is_null($this->request->input('id')))
+		{
+			if(!$this->validator->is_okay_to_drafting($search, $this->request, $this->get_new_token($this->token)))
+			{
+				return response()->json( JSend::error([$this->validator->error])->asArray());
+			}
+		}
 
+		//3. Parse Data to Store format based on policy
+		$this->formattor 	= new AktaFormattor;
+		$body 				= $this->formattor->parse_to_draft_structure($this->request, $this->token, $status);
+
+		//4. Mq Caller (Action)
 		$akta 		= new AktaCaller;
+		$response 	= $akta->store_caller($body, $this->request, $this->get_new_token($this->token));
 
-		return $akta->edit_caller($body, $this->request, $this->get_new_token($this->token));
+		//5. Transforming Data
+		if(str_is($response['status'], 'success'))
+		{
+			$fractal		= new Manager();
+			$resource 		= new Collection([$response['data']], new IsiAktaTransformer);
+
+			// Turn that into a structured array (handy for XML views or auto-YAML converting)
+			$array			= $fractal->createData($resource)->toArray();
+
+			$response['data']['data']	= $array['data'][0];
+		}
+
+		$response 	= json_encode($response);
+
+		return $response;
 	}
 
-	public function issue()
+	//Here is delete a draft deed, only can be used by owner of document (personally)
+	//Allowing Role : Drafter, Notary
+	//Affected Route :
+	//- hapus/draft/akta
+	public function delete()
 	{
-		return $this->store('proposed_akta', 'draft_akta');
+		//1. Middleware Parse Parameter
+		if(str_is($this->role, 'drafter') || str_is($this->role, 'notary'))
+		{
+			$search['search']['type']		= 'draft_akta';
+			$search['search']['writerid']	= $this->writerid;
+			$search['search']['ownerid']	= $this->writerid;
+			$search['search']['ownertype']	= 'person';
+			$search['search']['id']			= $this->request->input('id');
+		}
+		else
+		{
+			throw new \Exception('invalid role');
+		}
+
+		//2. Validating This Process on Business Rule
+		//2a. If updating, mq existence
+		$akta 		= new AktaCaller;
+
+		$response 	= $akta->show_caller($search, $this->request, $this->get_new_token($this->token));
+
+		if(!str_is($response['status'], 'success') || count($response['data']['data']) < 1)
+		{
+			return response()->json( JSend::error(['Tidak dapat menghapus draft akta yang bukan milik Anda!'])->asArray());
+		}
+
+		//3. Parse Data to Delete format
+		$body['id']	= $this->request->input('id');
+
+		//4. Mq Caller (Action)
+		$akta 		= new AktaCaller;
+		$response 	= $akta->delete_caller($body, $this->request, $this->get_new_token($this->token));
+
+		//5. Transforming Data
+		if(str_is($response['status'], 'success'))
+		{
+			$fractal		= new Manager();
+			$resource 		= new Collection([$response['data']['data']], new IsiAktaTransformer);
+
+			// Turn that into a structured array (handy for XML views or auto-YAML converting)
+			$array			= $fractal->createData($resource)->toArray();
+
+			$response['data']['data']	= $array['data'][0];
+		}
+
+		$response 	= json_encode($response);
+
+		return $response;
+	}
+
+	//Here is issue a draft deed, only can be used by owner of document (personally)
+	//Allowing Role : Drafter, Notary
+	//Affected Route :
+	//- issue/draft/akta
+	public function issue($status = 'proposed_akta', $prev_status = 'draft_akta')
+	{
+		//1. Middleware Parse Parameter
+		if(str_is($this->role, 'drafter') || str_is($this->role, 'notary'))
+		{
+			$search['search']['type']		= $prev_status;
+			$search['search']['writerid']	= $this->writerid;
+			$search['search']['ownerid']	= $this->writerid;
+			$search['search']['ownertype']	= 'person';
+			$search['search']['id']			= $this->request->input('id');
+			$this->validator 				= new AktaValidator;
+		}
+		else
+		{
+			throw new \Exception('invalid role');
+		}
+
+		//2. Validating This Process on Business Rule
+		//2a. Check Existance
+		if(!$this->validator->is_okay_to_drafting($search, $this->request, $this->get_new_token($this->token)))
+		{
+			return response()->json( JSend::error([$this->validator->error])->asArray());
+		}
+
+		//3. Parse Data to Store format based on policy
+		//3a. Parse Akta
+		$this->formattor 	= new AktaFormattor;
+		$body 				= $this->formattor->parse_to_akta_structure($this->validator->data, $this->token, $status);
+
+		//3b. Parse Lock
+		$this->formattor_lock 	= new LockFormattor;
+		$body_lock 				= $this->formattor_lock->parse_to_lock_structure($this->validator->data, $this->token, $status);
+
+		//4. Mq Caller (Action)
+		//4a. Simpan Akta
+		$akta 		= new AktaCaller;
+		$response 	= $akta->store_caller($body, $this->request, $this->get_new_token($this->token));
+
+		if(str_is($response['status'], 'success'))
+		{
+			//4b. Lock Akta
+			$lock 			= new LockCaller;
+
+			$response_lock = $lock->store_caller($body_lock, $this->request, $this->get_new_token($this->token));
+
+			//5. Transforming Data
+			$fractal		= new Manager();
+			$resource 		= new Collection([$response['data']], new IsiAktaTransformer);
+
+			// Turn that into a structured array (handy for XML views or auto-YAML converting)
+			$array			= $fractal->createData($resource)->toArray();
+
+			$response['data']['data']	= $array['data'][0];
+		}
+
+		$response 	= json_encode($response);
+
+		return $response;
 	}
 }
 

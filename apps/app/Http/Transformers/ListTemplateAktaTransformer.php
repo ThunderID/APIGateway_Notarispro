@@ -18,14 +18,6 @@ class ListTemplateAktaTransformer extends TransformerAbstract
 					    			'element-class'			=> 'input',
 					    			'element-type'			=> 'string',
 					    			'element-properties'	=> 	[
-					    											'name'	=> 'id',
-					    											'value'	=> $value['_id'],
-					    										],
-					    		],
-					    		[	
-					    			'element-class'			=> 'input',
-					    			'element-type'			=> 'string',
-					    			'element-properties'	=> 	[
 					    											'name'	=> 'title',
 					    											'value'	=> $value['title'],
 																	'validation'	=> ['required' => true, 'max' => '255'],
