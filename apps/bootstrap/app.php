@@ -82,12 +82,15 @@ $app->singleton(
 */
 
 $app->middleware([
-   App\Http\Middleware\JWTMiddleware::class
+   // App\Http\Middleware\JWTMiddleware::class
 ]);
 
-// $app->routeMiddleware([
-//     'auth' => App\Http\Middleware\Authenticate::class,
-// ]);
+$app->routeMiddleware([
+    'notary'    => App\Http\Middleware\JWTNotaryOrganizationMiddleware::class,
+    // 'drafter'   => App\Http\Middleware\JWTDrafterMiddleware::class,
+    'person'        => App\Http\Middleware\JWTPersonMiddleware::class,
+    'organization'  => App\Http\Middleware\JWTOrganizationMiddleware::class,
+]);
 
 /*
 |--------------------------------------------------------------------------

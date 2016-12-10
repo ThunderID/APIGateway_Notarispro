@@ -2,42 +2,97 @@
 
 namespace App\Http\Policies;
 
+use Lcobucci\JWT\Parser;
+
+use Illuminate\Http\Request;
+
 class AktaFormattor 
 {
-	public function parse_to_draft_structure($request, $token, $status)
+	/**
+	 * fungsi untuk format seluruh konten akta
+	 * 
+	 * Perubahan ini mempengaruhi fungsi route : DraftAktaController@store
+	 * @param  	\Illuminate\Http\Request $request
+	 * @param  	string $status
+	 * @return 	array $body
+	 * 
+	 */
+	public function formatting_whole_content(Request $request, $status)
 	{
-		$writerid 	= $token->getClaim('pid');
-		$writername = $token->getClaim('pname');
+		$writerid 	= $request->input('writerid');
+		$writername = $request->input('writername');
+		$ownerid 	= $request->input('ownerid');
+		$ownername 	= $request->input('ownername');
+		$ownertype 	= $request->input('ownertype');
 
-		$body 					= $request->input();
+		$body 						= $request->input();
 
-		$body['owner']['_id']	= $writerid;
-		$body['owner']['type']	= 'person';
-		$body['owner']['name']	= $writername;
-
+		$body['writer']['_id']		= $writerid;
+		$body['writer']['name']		= $writername;
+		
+		$body['owner']['_id']		= $ownerid;
+		$body['owner']['type']		= $ownertype;
+		$body['owner']['name']		= $ownername;
+		
 		foreach ($body['paragraph'] as $key => $value) 
 		{
 			$body['paragraph'][$key]= ['content' => $value];
 		}
-	
-		$body['writer']['_id']		= $writerid;
-		$body['writer']['name']		= $writername;
+
 		$body['type']				= $status;
 
 		return $body;
 	}
 
-	public function parse_to_akta_structure($prev_input, $token, $status)
+	/**
+	 * fungsi untuk paragraph tertentu dari akta
+	 * 
+	 * Perubahan ini mempengaruhi fungsi route : RenvoiController@store
+	 * @param  	\Illuminate\Http\Request $request
+	 * @param  	string $status
+	 * @return 	array $body
+	 * 
+	 */
+	public function formatting_certain_paragraph(array $prev_data, $status, Request $request)
 	{
-		$ownerid 	= $token->getClaim('oid');
-		$ownername 	= $token->getClaim('oname');
+		$body 						= $prev_data;
+		$body['id'] 				= $prev_data['_id'];
 
-		$body 					= $prev_input;
-		$body['id'] 			= $prev_input['_id'];
-		$body['owner']['_id']	= $ownerid;
-		$body['owner']['name']	= $ownername;
-		$body['owner']['type']	= 'organization';
-		$body['type']			= $status;
+		foreach ($request->input('paragraph') as $key => $value) 
+		{
+			$body['paragraph'][$key]= ['content' => $value];
+		}
+
+		return $body;
+	}
+
+	/**
+	 * fungsi untuk format seluruh konten akta
+	 * 
+	 * Perubahan ini mempengaruhi fungsi route : DraftAktaController@issue
+	 * @param  	string $status
+	 * @param  	array $prev_data
+	 * @return 	array $body
+	 * 
+	 */
+	public function formatting_status_owner_organization(array $prev_data, $status, Request $request)
+	{
+		$token  = $request->header('Authorization');
+
+		$tokens 	= explode(' ', $token);
+
+		$token 		= $tokens[count($tokens) - 1];
+
+		$token		= (new Parser())->parse((string) $token); // Parses from a string
+
+		$body 						= $prev_data;
+		$body['id'] 				= $prev_data['_id'];
+
+		$body['owner']['_id']		= $token->getClaim('oid');
+		$body['owner']['name']		= $token->getClaim('oname');
+		$body['owner']['type']		= 'organization';
+
+		$body['type']				= $status;
 
 		return $body;
 	}

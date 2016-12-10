@@ -23,102 +23,119 @@ $app->group(['namespace' => 'App\Http\Controllers'], function ($app)
 	$app->get('/lihat/list/template/akta',
 		[
 			'uses'				=> 'TemplateAktaController@index',
+			'middleware'		=> 'organization',
 		]
 	);
 
 	$app->get('/lihat/isi/template/akta',
 		[
 			'uses'				=> 'TemplateAktaController@show',
+			'middleware'		=> 'organization',
 		]
 	);
 
 	$app->get('/mulai/template/akta',
 		[
-			'uses'				=> 'TemplateAktaController@edit',
+			'uses'				=> 'TemplateAktaController@create',
+			'middleware'		=> 'organization',
 		]
 	);
 
 	$app->get('/edit/isi/template/akta',
 		[
-			'uses'				=> 'TemplateAktaController@edit',
+			'uses'				=> 'TemplateAktaController@create',
+			'middleware'		=> 'organization',
 		]
 	);
 	
 	$app->post('/simpan/template/akta',
 		[
 			'uses'				=> 'TemplateAktaController@store',
+			'middleware'		=> 'organization',
 		]
 	);
 	
 	$app->post('/update/template/akta',
 		[
 			'uses'				=> 'TemplateAktaController@store',
+			'middleware'		=> 'organization',
 		]
 	);
 
 	$app->delete('/hapus/template/akta',
 		[
 			'uses'				=> 'TemplateAktaController@delete',
+			'middleware'		=> 'organization',
 		]
 	);
 	
 	$app->post('/issue/template/akta',
 		[
 			'uses'				=> 'TemplateAktaController@issue',
+			'middleware'		=> 'organization',
 		]
 	);
-	
+
 	$app->post('/void/template/akta',
 		[
 			'uses'				=> 'TemplateAktaController@void',
+			'middleware'		=> 'organization',
 		]
 	);
 
 	$app->get('/lihat/list/draft/akta',
 		[
 			'uses'				=> 'DraftAktaController@index',
+			'middleware'		=> 'person',
 		]
 	);
 
 	$app->get('/lihat/isi/draft/akta',
 		[
 			'uses'				=> 'DraftAktaController@show',
+			'middleware'		=> 'person',
 		]
 	);
 
 	$app->get('/mulai/draft/akta',
 		[
-			'uses'				=> 'DraftAktaController@edit',
+			'uses'				=> 'DraftAktaController@create',
+			'middleware'		=> 'person',
 		]
 	);
 
 	$app->get('/edit/isi/draft/akta',
 		[
-			'uses'				=> 'DraftAktaController@edit',
+			'uses'				=> 'DraftAktaController@create',
+			'middleware'		=> 'person',
 		]
 	);
 
 	$app->post('/simpan/draft/akta',
 		[
 			'uses'				=> 'DraftAktaController@store',
+			'middleware'		=> 'person',
 		]
 	);
 	
 	$app->post('/update/draft/akta',
 		[
 			'uses'				=> 'DraftAktaController@store',
+			'middleware'		=> 'person',
 		]
 	);
 
 	$app->delete('/hapus/draft/akta',
 		[
 			'uses'				=> 'DraftAktaController@delete',
+			'middleware'		=> 'person',
 		]
 	);
 
 	$app->post('/issue/draft/akta',
 		[
 			'uses'				=> 'DraftAktaController@issue',
+			'middleware'		=> 'person',
 		]
 	);
 
@@ -126,48 +143,85 @@ $app->group(['namespace' => 'App\Http\Controllers'], function ($app)
 	$app->get('/lihat/list/proposed/akta',
 		[
 			'uses'				=> 'ProposedAktaController@index',
+			'middleware'		=> 'notary',
 		]
 	);
 
 	$app->get('/lihat/isi/proposed/akta',
 		[
 			'uses'				=> 'ProposedAktaController@show',
+			'middleware'		=> 'notary',
 		]
 	);
 
 	$app->delete('/void/proposed/akta',
 		[
 			'uses'				=> 'ProposedAktaController@void',
+			'middleware'		=> 'notary',
 		]
 	);
 
-	$app->post('/issue/renvoi',
+	$app->post('/issue/proposed/akta',
 		[
-			'uses'				=> 'RenvoiController@issue',
+			'uses'				=> 'ProposedAktaController@issue',
+			'middleware'		=> 'notary',
 		]
 	);
+
+
+
+
+
 
 	$app->get('/lihat/list/renvoi',
 		[
 			'uses'				=> 'RenvoiController@index',
+			'middleware'		=> 'person',
 		]
 	);
 
 	$app->get('/lihat/isi/renvoi',
 		[
 			'uses'				=> 'RenvoiController@show',
+			'middleware'		=> 'person',
+		]
+	);
+
+	$app->get('/edit/isi/renvoi',
+		[
+			'uses'				=> 'RenvoiController@edit',
+			'middleware'		=> 'person',
 		]
 	);
 
 	$app->post('/simpan/renvoi',
 		[
 			'uses'				=> 'RenvoiController@store',
+			'middleware'		=> 'person',
 		]
 	);
 
-	$app->post('/handover/akta',
+	$app->post('/issue/renvoi',
 		[
-			'uses'				=> 'AktaController@handover',
+			'uses'				=> 'RenvoiController@issue',
+			'middleware'		=> 'person',
+		]
+	);
+
+
+
+
+
+
+	$app->get('/handover/{type}',
+		[
+			'uses'				=> 'AktaController@get_handover',
+		]
+	);
+
+	$app->post('/handover/{type}',
+		[
+			'uses'				=> 'AktaController@post_handover',
 		]
 	);
 

@@ -2,14 +2,26 @@
 
 namespace App\Http\Policies;
 
+use Illuminate\Http\Request;
+
 class TemplateFormattor 
 {
-	public function parse_to_draft_structure($request, $token, $status)
+	/**
+	 * fungsi untuk format seluruh konten template
+	 * 
+	 * Perubahan ini mempengaruhi fungsi route : TemplateAktaController@store
+	 * @param  	\Illuminate\Http\Request $request
+	 * @param  	string $status
+	 * @return 	array $body
+	 * 
+	 */
+	public function formatting_whole_content(Request $request, $status)
 	{
-		$writerid 	= $token->getClaim('pid');
-		$writername = $token->getClaim('pname');
-		$ownerid 	= $token->getClaim('oid');
-		$ownername 	= $token->getClaim('oname');
+		$writerid 	= $request->input('writerid');
+		$writername = $request->input('writername');
+		$ownerid 	= $request->input('ownerid');
+		$ownername 	= $request->input('ownername');
+		$ownertype 	= $request->input('ownertype');
 
 		$body 						= $request->input();
 
@@ -17,11 +29,9 @@ class TemplateFormattor
 		$body['writer']['name']		= $writername;
 		
 		$body['owner']['_id']		= $ownerid;
-		$body['owner']['type']		= 'organization';
+		$body['owner']['type']		= $ownertype;
 		$body['owner']['name']		= $ownername;
 		
-		$body['type']				= $status;
-
 		foreach ($body['paragraph'] as $key => $value) 
 		{
 			$body['paragraph'][$key]= ['content' => $value];
@@ -32,14 +42,20 @@ class TemplateFormattor
 		return $body;
 	}
 
-	public function parse_to_template_structure($prev_input, $token, $status)
+	/**
+	 * fungsi untuk format seluruh konten template
+	 * 
+	 * Perubahan ini mempengaruhi fungsi route : TemplateAktaController@issue
+	 * @param  	string $status
+	 * @param  	array $prev_data
+	 * @return 	array $body
+	 * 
+	 */
+	public function formatting_status(array $prev_data, $status)
 	{
-		$ownerid 	= $token->getClaim('oid');
-		$ownername 	= $token->getClaim('oname');
-
-		$body 					= $prev_input;
-		$body['id'] 			= $prev_input['_id'];
-		$body['type']			= $status;
+		$body 						= $prev_data;
+		$body['id']					= $prev_data['_id'];
+		$body['type']				= $status;
 
 		return $body;
 	}

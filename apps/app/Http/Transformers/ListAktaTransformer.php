@@ -9,69 +9,23 @@ use League\Fractal\Resource\Collection;
 
 class ListAktaTransformer extends TransformerAbstract
 {
+	/**
+	 * fungsi untuk transform data index document akta.
+	 * 
+	 * Perubahan ini mempengaruhi fungsi : ThunderTransformer@list_document_akta
+	 * @param  	array $value
+	 * @return 	array data //lebih jelas baca dokumentasi akta index
+	 * 
+	 */
 	public function transform(array $value)
 	{
-	    return [
-			    'info' 		=> ['id' => $value['_id']],
-	    		'elements' 	=> [
-					    		[	
-					    			'element-class'			=> 'input',
-					    			'element-type'			=> 'string',
-					    			'element-properties'	=> 	[
-					    											'name'	=> 'title',
-					    											'value'	=> $value['title'],
-																	'validation'	=> ['required' => true, 'max' => '255'],
-					    										],
-					    		],
-					    		[	
-					    			'element-class'			=> 'input',
-					    			'element-type'			=> 'string',
-					    			'element-properties'	=> 	[
-					    											'name'	=> 'writer_id',
-					    											'value'	=> $value['writer']['_id'],
-					    										],
-					    		],
-					    		[	
-					    			'element-class'			=> 'input',
-					    			'element-type'			=> 'string',
-					    			'element-properties'	=> 	[
-					    											'name'	=> 'writer_name',
-					    											'value'	=> $value['writer']['name'],
-					    										],
-					    		],
-					    		[	
-					    			'element-class'			=> 'input',
-					    			'element-type'			=> 'string',
-					    			'element-properties'	=> 	[
-					    											'name'	=> 'owner_id',
-					    											'value'	=> $value['owner']['_id'],
-					    										],
-					    		],
-					    		[	
-					    			'element-class'			=> 'input',
-					    			'element-type'			=> 'string',
-					    			'element-properties'	=> 	[
-					    											'name'	=> 'owner_name',
-					    											'value'	=> $value['owner']['name'],
-					    										],
-					    		],
-					    		[	
-					    			'element-class'			=> 'input',
-					    			'element-type'			=> 'datetime',
-					    			'element-properties'	=> 	[
-					    											'name'	=> 'created_at',
-					    											'value'	=> $value['created_at'],
-					    										],
-					    		],
-					    		[	
-					    			'element-class'			=> 'input',
-					    			'element-type'			=> 'string',
-					    			'element-properties'	=> 	[
-					    											'name'	=> 'updated_at',
-					    											'value'	=> $value['updated_at'],
-					    										],
-					    		],
-					    		]
-		];
+	    return	[
+					'id' 			=> $value['_id'],
+					'title' 		=> $value['title'],
+					'type' 			=> $value['type'],
+					'writer' 		=> $value['writer']['name'],
+					'writer_id' 	=> $value['writer']['_id'],
+					'last_update' 	=> $value['updated_at'],
+				];
 	}
 }
