@@ -168,11 +168,6 @@ $app->group(['namespace' => 'App\Http\Controllers'], function ($app)
 		]
 	);
 
-
-
-
-
-
 	$app->get('/lihat/list/renvoi',
 		[
 			'uses'				=> 'RenvoiController@index',
@@ -208,20 +203,38 @@ $app->group(['namespace' => 'App\Http\Controllers'], function ($app)
 		]
 	);
 
-
-
-
-
-
-	$app->get('/handover/{type}',
+	$app->post('/generate/akta',
 		[
-			'uses'				=> 'AktaController@get_handover',
+			'uses'				=> 'ProposedAktaController@generate',
+			'middleware'		=> 'notary',
 		]
 	);
 
-	$app->post('/handover/{type}',
+	$app->get('/handover/draft/akta',
 		[
-			'uses'				=> 'AktaController@post_handover',
+			'uses'				=> 'HandOverAktaController@get_handover',
+			'middleware'		=> 'person',
+		]
+	);
+
+	$app->post('/handover/draft/akta',
+		[
+			'uses'				=> 'HandOverAktaController@post_handover',
+			'middleware'		=> 'person',
+		]
+	);
+
+	$app->get('/assignee/akta',
+		[
+			'uses'				=> 'HandOverAktaController@get_handover',
+			'middleware'		=> 'notary',
+		]
+	);
+
+	$app->post('/assignee/akta',
+		[
+			'uses'				=> 'HandOverAktaController@post_handover',
+			'middleware'		=> 'notary',
 		]
 	);
 
@@ -229,18 +242,21 @@ $app->group(['namespace' => 'App\Http\Controllers'], function ($app)
 	$app->get('/lihat/list/akta',
 		[
 			'uses'				=> 'AktaController@index',
+			'middleware'		=> 'notary',
 		]
 	);
 	
 	$app->get('/lihat/isi/akta',
 		[
 			'uses'				=> 'AktaController@show',
+			'middleware'		=> 'notary',
 		]
 	);
 
 	$app->get('/print/akta',
 		[
-			'uses'				=> 'AktaController@print',
+			'uses'				=> 'AktaController@show',
+			'middleware'		=> 'notary',
 		]
 	);
 });

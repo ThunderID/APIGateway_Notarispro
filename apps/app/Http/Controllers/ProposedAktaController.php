@@ -38,11 +38,11 @@ class ProposedAktaController extends Controller
 		return $search;
 	}
 
-	//Here is list of all deed drafts, only can be seen by owner of document (personally)
+	//Here is list of all proposed deeds, only can be seen by owner of document (personally)
 	//Allowing Role : Drafter, Notary
 	//Affected Route :
 	//- lihat/isi/proposed/akta
-	public function index($id = null)
+	public function index()
 	{
 		//1. Parse Search Parameter
 		$search 	= $this->search();
@@ -133,7 +133,7 @@ class ProposedAktaController extends Controller
 		return $response;
 	}
 
-	//Here is void a proposed deed, only can be used by owner of document (personally)
+	//Here is issue a proposed deed, only can be used by owner of document (personally)
 	//Allowing Role : Drafter, Notary
 	//Affected Route :
 	//- issue/proposed/akta
@@ -169,6 +169,63 @@ class ProposedAktaController extends Controller
 		//3b. Parse Lock
 		$formattor_lock = new LockFormattor;
 		$body_lock 		= $formattor_lock->formatting_certain_paragraph($v_lock->data, $status, $this->request);
+
+		//4. Mq Caller (Action)
+		//4a. Simpan Akta
+		$mqcaller 		= new ThunderMQCaller;
+		$response 		= $mqcaller->store_caller($body, $this->request, $this->request->input('ocode').'.document.store');
+
+		//4b. Lock Akta (use response from 4a)
+		$response_lock 	= $mqcaller->store_caller($response['data']['data'], $this->request, $this->request->input('ocode').'.lock.store');
+
+		//5. Transforming Data
+		if(str_is($response['status'], 'success'))
+		{
+			$transform 	= new ThunderTransformer;
+			$response 	= $transform->isi_document_akta($response);
+		}
+
+		$response 	= json_encode($response);
+
+		return $response;
+	}
+
+	//Here is void a proposed deed, only can be used by owner of document (personally)
+	//Allowing Role : Drafter, Notary
+	//Affected Route :
+	//- generate/akta
+	public function generate($status = 'akta')
+	{
+		//1. Parse Search Parameter
+		//1a. Akta Parameter
+		$search 					= $this->search();
+		$search['search']['id']		= $this->request->input('id');
+		//1b. Lock Parameter
+		$s_lock['search']['type']		= 'proposed_akta';
+		$s_lock['search']['pandoraid']	= $this->request->input('id');
+
+		//2. Validating This Process on Business Rule
+		//2a. Akta existence
+		$validator					= new ThunderMQValidator;
+		if(!$validator->is_exists($search, $this->request, $this->request->input('ocode').'.document.index'))
+		{
+			return response()->json( JSend::error([$validator->error])->asArray());
+		}
+		//2b. Lock existence
+		$v_lock					= new ThunderMQValidator;
+		if(!$v_lock->is_exists($s_lock, $this->request, $this->request->input('ocode').'.lock.index'))
+		{
+			return response()->json( JSend::error([$v_lock->error])->asArray());
+		}
+
+		//3. Parse Data to Store format based on policy
+		//3a. Parse Akta
+		$formattor 		= new AktaFormattor;
+		$body 			= $formattor->formatting_status_owner_organization($validator->data, $status, $this->request);
+
+		//3b. Parse Lock
+		$formattor_lock = new LockFormattor;
+		$body_lock 		= $formattor_lock->formatting_previous_content($v_lock->data, $status, $this->request);
 
 		//4. Mq Caller (Action)
 		//4a. Simpan Akta

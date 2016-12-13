@@ -55,4 +55,32 @@ class LockFormattor
 
 		return $body;
 	}
+
+	/**
+	 * fungsi untuk format seluruh konten lock dari lock yang sudah ada
+	 * 
+	 * Perubahan ini mempengaruhi fungsi route : RenvoiController@issue, ProposedAktaController@generate
+	 * @param   array $prev_data
+	 * @param  	string $status
+	 * @param  	array $prev_lock
+	 * @return 	array $body
+	 * 
+	 */
+	public function formatting_previous_content(array $prev_data, $status, array $prev_lock)
+	{
+		$body['id']					= $prev_lock['_id'];
+		$body['pandora']['_id']		= $prev_data['_id'];
+		$body['pandora']['type']	= $status;
+		
+		foreach ($prev_data['paragraph'] as $key => $value) 
+		{
+			$body['pandora']['field'][$key]	= 'paragraph.'.$key.'.content';
+		}
+
+		$body['owner']['_id']		= $prev_data['owner']['_id'];
+		$body['owner']['name']		= $prev_data['owner']['name'];
+		$body['owner']['type']		= $prev_data['owner']['type'];
+
+		return $body;
+	}
 };

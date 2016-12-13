@@ -13,6 +13,9 @@ use App\Http\Transformers\ListAktaTransformer;
 use App\Http\Transformers\IsiAktaTransformer;
 use App\Http\Transformers\EditableAktaTransformer;
 
+use App\Http\Transformers\EditableLockedAktaTransformer;
+use App\Http\Transformers\EditableHandoverAktaTransformer;
+
 class ThunderTransformer 
 {
 	/**
@@ -164,7 +167,7 @@ class ThunderTransformer
 	}
 
 	/**
-	 * fungsi transform draft akta
+	 * fungsi transform renvoi akta
 	 * 
 	 * Perubahan ini mempengaruhi fungsi : RenvoiController@edit
 	 * @param   array of $akta
@@ -172,10 +175,26 @@ class ThunderTransformer
 	 * @return 	array of UI Contract
 	 * 
 	 */
-	public function edit_draft_akta(array $akta, array $lock) 
+	public function edit_renvoi_akta(array $akta, array $lock) 
 	{
 		$response		= new EditableLockedAktaTransformer();
 
 		return $response->transform($akta, $lock);
+	}
+
+	/**
+	 * fungsi transform handover akta
+	 * 
+	 * Perubahan ini mempengaruhi fungsi : HandOverAktaController@get_handover
+	 * @param   array of $akta
+	 * @param   array of $lock
+	 * @return 	array of UI Contract
+	 * 
+	 */
+	public function edit_handover_akta(array $akta, array $user) 
+	{
+		$response		= new EditableHandoverAktaTransformer();
+
+		return $response->transform($akta, $user);
 	}
 };

@@ -70,8 +70,9 @@ class AktaFormattor
 	 * fungsi untuk format seluruh konten akta
 	 * 
 	 * Perubahan ini mempengaruhi fungsi route : DraftAktaController@issue
-	 * @param  	string $status
 	 * @param  	array $prev_data
+	 * @param  	string $status
+	 * @param  	\Illuminate\Http\Request $request
 	 * @return 	array $body
 	 * 
 	 */
@@ -93,6 +94,32 @@ class AktaFormattor
 		$body['owner']['type']		= 'organization';
 
 		$body['type']				= $status;
+
+		return $body;
+	}
+
+	/**
+	 * fungsi untuk format seluruh konten akta
+	 * 
+	 * Perubahan ini mempengaruhi fungsi route : DraftAktaController@issue
+	 * @param  	array $prev_data
+	 * @param  	\Illuminate\Http\Request $request
+	 * @return 	array $body
+	 * 
+	 */
+	public function formatting_writer(array $prev_data, Request $request)
+	{
+		$body 						= $prev_data;
+		$body['id'] 				= $prev_data['_id'];
+
+		$body['writer']['_id']		= $request->input('pid');
+		$body['writer']['name']		= $request->input('pname');
+		
+		if($prev_data['owner']['type']=='person')
+		{
+			$body['owner']['id']	= $request->input('pid');
+			unset($body['owner']['name']);
+		}
 
 		return $body;
 	}

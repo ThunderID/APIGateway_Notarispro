@@ -57,7 +57,7 @@ class EditableLockedAktaTransformer
 												  ];
 		}
 
-		$major['page_info']	= $minor;
+		$major['page_data']	= $minor;
 
 		return $major;
 	}

@@ -3,27 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Libraries\JSend;
+use App\Libraries\ThunderMQCaller;
+use App\Libraries\ThunderMQValidator;
+use App\Libraries\ThunderTransformer;
 
-use Illuminate\Support\Facades\Input;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
-
-use Lcobucci\JWT\Parser;
-use Lcobucci\JWT\Builder;
-
-use League\Fractal\Manager;
-use League\Fractal\Resource\Collection;
 
 use App\Http\Mq\AktaCaller;
 use App\Http\Mq\LockCaller;
 
-use App\Http\Policies\AktaValidator;
 use App\Http\Policies\AktaFormattor;
 use App\Http\Policies\LockFormattor;
-
-use App\Http\Transformers\ListAktaTransformer;
-use App\Http\Transformers\IsiAktaTransformer;
-use App\Http\Transformers\IsiRenvoiEditableTransformer;
 
 /**
  * Renvoi Akta  resource representation.
@@ -60,10 +50,6 @@ class RenvoiController extends Controller
 	{
 		//1. Parse Search Parameter
 		$search 	= $this->search();
-
-		//2. Mq Caller
-		$akta 		= new AktaCaller;
-		$response 	= $akta->index_caller($search, $this->request, $this->get_new_token($this->token));
 
 		//2. Mq Caller
 		$akta 		= new ThunderMQCaller;
@@ -161,7 +147,7 @@ class RenvoiController extends Controller
 		$search 					= $this->search();
 		$search['search']['id']		= $this->request->input('id');
 		//1b. Lock Parameter
-		$s_lock['search']['type']		= 'proposed_akta';
+		$s_lock['search']['type']		= 'renvoi_akta';
 		$s_lock['search']['pandoraid']	= $this->request->input('id');
 
 		//2. Validating This Process on Business Rule
@@ -212,60 +198,53 @@ class RenvoiController extends Controller
 	//- issue/renvoi
 	public function issue($status = 'proposed_akta', $prev_status = 'renvoi_akta')
 	{
-		//1. Middleware Parse Parameter
-		if(str_is($this->role, 'drafter') || str_is($this->role, 'notary'))
-		{
-			$search['search']['type']		= $prev_status;
-			$search['search']['writerid']	= $this->writerid;
-			$search['search']['ownerid']	= $this->ownerid;
-			$search['search']['ownertype']	= 'organization';
-			$search['search']['id']			= $this->request->input('id');
-			$this->validator 				= new AktaValidator;
-		}
-		else
-		{
-			throw new \Exception('invalid role');
-		}
+		//1. Parse Search Parameter
+		//1a. Akta Parameter
+		$search 						= $this->search();
+		$search['search']['id']			= $this->request->input('id');
+		//1b. Lock Parameter
+		$s_lock['search']['type']		= $prev_status;
+		$s_lock['search']['pandoraid']	= $this->request->input('id');
 
 		//2. Validating This Process on Business Rule
-		//2a. Check Existance
-		if(!$this->validator->is_okay_to_drafting($search, $this->request, $this->get_new_token($this->token)))
+		//2a. Akta existence
+		$validator		= new ThunderMQValidator;
+		if(!$validator->is_exists($search, $this->request, $this->request->input('ocode').'.document.index'))
 		{
-			return response()->json( JSend::error([$this->validator->error])->asArray());
+			return response()->json( JSend::error([$validator->error])->asArray());
+		}
+		//2b. Lock existence
+		$v_lock			= new ThunderMQValidator;
+		if(!$v_lock->is_exists($s_lock, $this->request, $this->request->input('ocode').'.lock.index'))
+		{
+			return response()->json( JSend::error([$v_lock->error])->asArray());
 		}
 
 		//3. Parse Data to Store format based on policy
 		//3a. Parse Akta
-		$this->formattor 	= new AktaFormattor;
-		$body 				= $this->formattor->parse_to_akta_structure($this->validator->data, $this->token, $status);
+		$formattor 		= new AktaFormattor;
+		$body 			= $formattor->formatting_status_owner_organization($validator->data, $status, $this->request);
 
 		//3b. Parse Lock
-		$this->formattor_lock 	= new LockFormattor;
-		$body_lock 				= $this->formattor_lock->parse_to_lock_structure($this->validator->data, $this->token, $status);
+		$formattor_lock = new LockFormattor;
+		$body_lock 		= $formattor_lock->formatting_previous_content($validator->data, $status, $v_lock->data);
 
 		//4. Mq Caller (Action)
 		//4a. Simpan Akta
-		$akta 		= new AktaCaller;
-		$response 	= $akta->store_caller($body, $this->request, $this->get_new_token($this->token));
+		$mqcaller 		= new ThunderMQCaller;
+		$response 		= $mqcaller->store_caller($body, $this->request, $this->request->input('ocode').'.document.store');
 
+		//4b. Lock Akta (use response from 4a)
+		$response_lock 	= $mqcaller->store_caller($response['data']['data'], $this->request, $this->request->input('ocode').'.lock.store');
+
+		//5. Transforming Data
 		if(str_is($response['status'], 'success'))
 		{
-			//4b. Lock Akta
-			$lock 			= new LockCaller;
-
-			$response_lock = $lock->store_caller($body_lock, $this->request, $this->get_new_token($this->token));
-
-			//5. Transforming Data
-			$fractal		= new Manager();
-			$resource 		= new Collection([$response['data']], new IsiAktaTransformer);
-
-			// Turn that into a structured array (handy for XML views or auto-YAML converting)
-			$array			= $fractal->createData($resource)->toArray();
-
-			$response['data']['data']	= $array['data'][0];
+			$transform 	= new ThunderTransformer;
+			$response 	= $transform->isi_document_akta($response);
 		}
 
-		$response 	= json_encode($response);
+		$response 		= json_encode($response);
 
 		return $response;
 	}
