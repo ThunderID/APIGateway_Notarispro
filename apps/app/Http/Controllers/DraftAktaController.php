@@ -114,7 +114,7 @@ class DraftAktaController extends Controller
 		$transform 	= new ThunderTransformer;
 		if(str_is($response['status'], 'success') && count($response['data']['data']) <= 0)
 		{
-			$response 	= $transform->edit_draft_akta($this->dummy());
+			$response 	= $transform->edit_draft_akta(['data' => ['data' => $this->dummy()]]);
 		}
 		elseif(str_is($response['status'], 'success'))
 		{

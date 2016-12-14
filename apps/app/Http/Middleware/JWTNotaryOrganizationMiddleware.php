@@ -49,7 +49,7 @@ class JWTNotaryOrganizationMiddleware
 			$request->merge(['writername' 	=> 	$token->getClaim('pname')]);
 			$request->merge(['ownerid' 		=> 	$token->getClaim('oid')]);
 			$request->merge(['ownername' 	=> 	$token->getClaim('oname')]);
-			$request->merge(['ownertype'	=> 'person']);
+			$request->merge(['ownertype'	=> 'organization']);
 			$request->merge(['ocode'		=> 'notarispro']);
 			$request->merge(['thundertoken' => $new_token]);
 

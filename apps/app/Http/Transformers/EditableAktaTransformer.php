@@ -7,7 +7,7 @@ use League\Fractal\TransformerAbstract;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Collection;
 
-class EditableDraftAktaTransformer extends TransformerAbstract
+class EditableAktaTransformer extends TransformerAbstract
 {
 		/**
 	 * fungsi untuk transform data input akta.
