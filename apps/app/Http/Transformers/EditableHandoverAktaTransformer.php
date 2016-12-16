@@ -14,9 +14,9 @@ class EditableHandoverAktaTransformer
 			$lists[$key] 				=  ['option' => $value['_id'], 'value' => $value['name']];
 		}
 
-		$minor['content']['header'][0]	= 'writerid';
+		$minor['content']['header'][0]	= 'writer_id';
 		$minor['content']['data'][0]	= [
-											'writerid'	=>
+											'writer_id'	=>
 												[
 													'element-class'			=> 'input',
 													'element-type'			=> 'select',

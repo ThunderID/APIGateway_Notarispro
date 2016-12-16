@@ -112,12 +112,13 @@ class AktaFormattor
 		$body 						= $prev_data;
 		$body['id'] 				= $prev_data['_id'];
 
-		$body['writer']['_id']		= $request->input('pid');
-		$body['writer']['name']		= $request->input('pname');
+		$body['writer']['_id']		= $request->input('writer_id');
+		unset($body['writer']['name']);
+		// $body['writer']['name']		= $request->input('writer_name');
 		
 		if($prev_data['owner']['type']=='person')
 		{
-			$body['owner']['id']	= $request->input('pid');
+			$body['owner']['id']	= $request->input('writer_id');
 			unset($body['owner']['name']);
 		}
 

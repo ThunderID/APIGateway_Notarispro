@@ -217,7 +217,7 @@ $app->group(['namespace' => 'App\Http\Controllers'], function ($app)
 		]
 	);
 
-	$app->post('/handover/draft/akta',
+	$app->post('/simpan/handover/draft/akta',
 		[
 			'uses'				=> 'HandOverAktaController@post_handover',
 			'middleware'		=> 'person',
@@ -231,7 +231,7 @@ $app->group(['namespace' => 'App\Http\Controllers'], function ($app)
 		]
 	);
 
-	$app->post('/assignee/akta',
+	$app->post('/simpan/assignee/akta',
 		[
 			'uses'				=> 'HandOverAktaController@post_handover',
 			'middleware'		=> 'notary',

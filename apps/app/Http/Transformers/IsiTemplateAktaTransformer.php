@@ -40,9 +40,9 @@ class IsiTemplateAktaTransformer extends TransformerAbstract
 	    														'header'	=> 	['writer', 'owner'],
 	    														'data'		=> 	[
 	    																			'writer' => $value['writer']['name'],
-	    																			'writerid' => $value['writer']['_id'],
+	    																			'writer_id' => $value['writer']['_id'],
 	    																			'owner' => $value['owner']['name'],
-	    																			'ownerid' => $value['owner']['_id'],
+	    																			'owner_id' => $value['owner']['_id'],
 	    																		],
 	    													]
 	    								   ]
