@@ -24,7 +24,7 @@ class EditableAktaTransformer extends TransformerAbstract
 			$paragraph_title[$key]					= 'paragraph_'.$key;
 			$paragraph_content['paragraph_'.$key]	= 	[
 															'element-class'			=> 'input',
-															'element-class'			=> 'string',
+															'element-type'			=> 'string',
 															'element-properties'	=> 
 																[
 		    														'value'			=> $value2['content'],
