@@ -7,14 +7,14 @@ use League\Fractal\TransformerAbstract;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Collection;
 
-class EditableAktaTransformer extends TransformerAbstract
+class EditableTemplateAktaTransformer extends TransformerAbstract
 {
 		/**
-	 * fungsi untuk transform data input akta.
+	 * fungsi untuk transform data show template akta.
 	 * 
-	 * Perubahan ini mempengaruhi fungsi : ThunderTransformer@edit_draft_akta
+	 * Perubahan ini mempengaruhi fungsi : ThunderTransformer@edit_template_akta
 	 * @param  	array $value
-	 * @return 	array data //lebih jelas baca dokumentasi template input
+	 * @return 	array data //lebih jelas baca dokumentasi template show
 	 * 
 	 */
 	public function transform(array $value)
@@ -24,7 +24,7 @@ class EditableAktaTransformer extends TransformerAbstract
 			$paragraph_title[$key]					= 'paragraph_'.$key;
 			$paragraph_content['paragraph_'.$key]	= 	[
 															'element-class'			=> 'input',
-															'element-type'			=> 'string',
+															'element-type'			=> 'text',
 															'element-properties'	=> 
 																[
 		    														'value'			=> $value2['content'],

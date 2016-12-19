@@ -28,12 +28,12 @@ class EditableLockedAktaTransformer
 
 		foreach ($akta['paragraph'] as $key => $value) 
 		{
-			$visible			= true;
+			$enabled			= true;
 			foreach ($lock['field'] as $key2 => $value2) 
 			{
 				if(str_is($value2, 'paragraph.'.$key.'content'))
 				{
-					$visible	= false;
+					$enabled	= false;
 				}
 			}
 
@@ -42,15 +42,15 @@ class EditableLockedAktaTransformer
 													'paragraph_'.$key 	=>
 														[
 															'element-class'			=> 'input',
-															'element-type'			=> 'string',
+															'element-type'			=> 'text',
 															'element-properties'	=> 
 																	[
 			    														'value'			=> $value['title'],
+			    														'enabled'		=> $enabled,
 			    														'validation' 	=> 
 			    															[
 			    																'required'	=> true,
 			    																'max'		=> 255,
-			    																'visible'	=> $visible,
 			    															],
 																	],
 														]
