@@ -55,7 +55,7 @@ class ThunderServiceCaller
 		$search['take']	= $per_page;
 
 		//url-ify the data for the POST
-		$fields_string	= http_build_query($fields);
+		$fields_string	= http_build_query($search);
 
 		$url			= $this->iptables[$iptable].'?'.$fields_string;
 
@@ -113,7 +113,7 @@ class ThunderServiceCaller
 		$search['take']	= $per_page;
 
 		//url-ify the data for the POST
-		$fields_string	= http_build_query($fields);
+		$fields_string	= http_build_query($search);
 
 		$url			= $this->iptables[$iptable].'?'.$fields_string;
 
@@ -161,10 +161,9 @@ class ThunderServiceCaller
 	public function store_caller(array $param, Request $request, $topic) 
 	{
 		$iptable 		= $this->transform_ip_table($topic);
-		$fields			= $param;
 
 		//url-ify the data for the POST
-		$fields_string	= http_build_query($fields);
+		$fields_string	= http_build_query($param);
 
 		$url			= $this->iptables[$iptable];
 
@@ -214,10 +213,9 @@ class ThunderServiceCaller
 	public function delete_caller(array $param, Request $request, $topic) 
 	{
 		$iptable 		= $this->transform_ip_table($topic);
-		$fields			= $param;
 
 		//url-ify the data for the POST
-		$fields_string	= http_build_query($fields);
+		$fields_string	= http_build_query($param);
 
 		$url			= $this->iptables[$iptable];
 
