@@ -40,11 +40,11 @@ class ThunderServiceCaller
 	 * Perubahan ini mempengaruhi fungsi middleware route : TemplateAktaController, DraftAktaController, ProposedAktaController, RenvoiController, dan AktaController
 	 * @param  	array $search
 	 * @param  	\Illuminate\Http\Request $request
-	 * @param  	string $topic
+	 * @param   $topic
 	 * @return 	array JSend
 	 * 
 	 */
-	public function index_caller(array $search, Request $request, string $topic) 
+	public function index_caller(array $search, Request $request, $topic) 
 	{
 		$iptable 		= $this->transform_ip_table($topic);
 
@@ -98,11 +98,11 @@ class ThunderServiceCaller
 	 * Perubahan ini mempengaruhi fungsi middleware route : TemplateAktaController, DraftAktaController, ProposedAktaController, RenvoiController, dan AktaController
 	 * @param  	array $search
 	 * @param  	\Illuminate\Http\Request $request
-	 * @param  	string $topic
+	 * @param   $topic
 	 * @return 	array JSend
 	 * 
 	 */
-	public function edit_caller(array $search, Request $request, string $topic) 
+	public function edit_caller(array $search, Request $request, $topic) 
 	{
 		$iptable 		= $this->transform_ip_table($topic);
 
@@ -154,11 +154,11 @@ class ThunderServiceCaller
 	 * Perubahan ini mempengaruhi fungsi middleware route : TemplateAktaController, DraftAktaController, ProposedAktaController, RenvoiController, dan AktaController
 	 * @param  	array $param
 	 * @param  	\Illuminate\Http\Request $request
-	 * @param  	string $topic
+	 * @param   $topic
 	 * @return 	array JSend
 	 * 
 	 */
-	public function store_caller(array $param, Request $request, string $topic) 
+	public function store_caller(array $param, Request $request, $topic) 
 	{
 		$iptable 		= $this->transform_ip_table($topic);
 		$fields			= $param;
@@ -207,11 +207,11 @@ class ThunderServiceCaller
 	 * Perubahan ini mempengaruhi fungsi middleware route : TemplateAktaController, DraftAktaController, ProposedAktaController, RenvoiController, dan AktaController
 	 * @param  	array $param
 	 * @param  	\Illuminate\Http\Request $request
-	 * @param  	string $topic
+	 * @param   $topic
 	 * @return 	array JSend
 	 * 
 	 */
-	public function delete_caller(array $param, Request $request, string $topic) 
+	public function delete_caller(array $param, Request $request, $topic) 
 	{
 		$iptable 		= $this->transform_ip_table($topic);
 		$fields			= $param;
