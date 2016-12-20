@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Libraries\JSend;
-use App\Libraries\ThunderMQCaller;
+use App\Libraries\ThunderServiceCaller;
 use App\Libraries\ThunderMQValidator;
 use App\Libraries\ThunderTransformer;
 
@@ -65,7 +65,7 @@ class HandOverAktaController extends Controller
 		}
 
 		//2b. get lists of writer 
-		$writer 	= new ThunderMQCaller;
+		$writer 	= new ThunderServiceCaller;
 		$response 	= $writer->index_caller($search_w, $this->request, $this->request->input('ocode').'.user.index');
 
 		//3. Transform Return
@@ -102,7 +102,7 @@ class HandOverAktaController extends Controller
 		$body 			= $formattor->formatting_writer($validator->data, $this->request);
 		
 		//4. Mq Caller (Action)
-		$mqcaller 		= new ThunderMQCaller;
+		$mqcaller 		= new ThunderServiceCaller;
 		$response 		= $mqcaller->store_caller($body, $this->request, $this->request->input('ocode').'.document.store');
 
 		//5. Transforming Data

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Libraries\JSend;
-use App\Libraries\ThunderMQCaller;
+use App\Libraries\ThunderServiceCaller;
 use App\Libraries\ThunderMQValidator;
 use App\Libraries\ThunderTransformer;
 
@@ -45,7 +45,7 @@ class TemplateAktaController extends Controller
 		$search['search']['type']	= $this->all_type;
 
 		//2. Mq Caller
-		$akta 		= new ThunderMQCaller;
+		$akta 		= new ThunderServiceCaller;
 		$response 	= $akta->index_caller($search, $this->request, $this->request->input('ocode').'.template.index');
 
 		//3. Transform Return
@@ -72,7 +72,7 @@ class TemplateAktaController extends Controller
 		$search['search']['id']		= $this->request->input('id');
 
 		//2. Mq Caller
-		$akta 		= new ThunderMQCaller;
+		$akta 		= new ThunderServiceCaller;
 		$response 	= $akta->index_caller($search, $this->request, $this->request->input('ocode').'.template.index');
 
 		//3. Transform Return
@@ -105,7 +105,7 @@ class TemplateAktaController extends Controller
 		$search['search']['id']		= $this->request->input('id');
 
 		//2. Mq Caller
-		$akta		= new ThunderMQCaller;
+		$akta		= new ThunderServiceCaller;
 		$response 	= $akta->edit_caller($search, $this->request, $this->request->input('ocode').'.template.index');
 
 		//3. Transform Return
@@ -153,7 +153,7 @@ class TemplateAktaController extends Controller
 		$body		= $formattor->formatting_whole_content($this->request, $status);
 
 		//4. Mq Caller (Action)
-		$akta 		= new ThunderMQCaller;
+		$akta 		= new ThunderServiceCaller;
 		$response 	= $akta->store_caller($body, $this->request, $this->request->input('ocode').'.template.store');
 
 		//5. Transforming Data
@@ -191,7 +191,7 @@ class TemplateAktaController extends Controller
 		$body['id']					= $this->request->input('id');
 
 		//4. Mq Caller (Action)
-		$akta 		= new ThunderMQCaller;
+		$akta 		= new ThunderServiceCaller;
 		$response 	= $akta->delete_caller($body, $this->request, $this->request->input('ocode').'.template.delete');
 
 		//5. Transforming Data
@@ -231,7 +231,7 @@ class TemplateAktaController extends Controller
 		$body		= $formattor->formatting_status($validator->data, $status);
 
 		//4. Mq Caller (Action)
-		$akta 		= new ThunderMQCaller;
+		$akta 		= new ThunderServiceCaller;
 		$response 	= $akta->store_caller($body, $this->request, $this->request->input('ocode').'.template.store');
 
 		//5. Transforming Data

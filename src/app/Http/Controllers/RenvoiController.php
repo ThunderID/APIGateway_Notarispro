@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Libraries\JSend;
-use App\Libraries\ThunderMQCaller;
+use App\Libraries\ThunderServiceCaller;
 use App\Libraries\ThunderMQValidator;
 use App\Libraries\ThunderTransformer;
 
@@ -52,7 +52,7 @@ class RenvoiController extends Controller
 		$search 	= $this->search();
 
 		//2. Mq Caller
-		$akta 		= new ThunderMQCaller;
+		$akta 		= new ThunderServiceCaller;
 		$response 	= $akta->index_caller($search, $this->request, $this->request->input('ocode').'.document.index');
 
 		//3. Transform Return
@@ -78,7 +78,7 @@ class RenvoiController extends Controller
 		$search['search']['id']		= $this->request->input('id');
 
 		//2. Mq Caller
-		$akta 		= new ThunderMQCaller;
+		$akta 		= new ThunderServiceCaller;
 		$response 	= $akta->index_caller($search, $this->request, $this->request->input('ocode').'.document.index');
 
 		//3. Transform Return
@@ -177,7 +177,7 @@ class RenvoiController extends Controller
 
 		//4. Mq Caller (Action)
 		//4a. Simpan Akta
-		$mqcaller 		= new ThunderMQCaller;
+		$mqcaller 		= new ThunderServiceCaller;
 		$response 		= $mqcaller->store_caller($body, $this->request, $this->request->input('ocode').'.document.store');
 
 		//5. Transforming Data
@@ -231,7 +231,7 @@ class RenvoiController extends Controller
 
 		//4. Mq Caller (Action)
 		//4a. Simpan Akta
-		$mqcaller 		= new ThunderMQCaller;
+		$mqcaller 		= new ThunderServiceCaller;
 		$response 		= $mqcaller->store_caller($body, $this->request, $this->request->input('ocode').'.document.store');
 
 		//4b. Lock Akta (use response from 4a)
