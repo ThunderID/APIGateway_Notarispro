@@ -103,18 +103,26 @@ class DraftAktaController extends Controller
 	public function create()
 	{
 		//1. Parse Search Parameter
+		//1a.Search draft akta
 		$search 					= $this->search();
 		$search['search']['id']		= $this->request->input('id');
 
+		//1b.Search template akta
+		$search_template['search']['id']	= $this->request->input('template_id');
+
 		//2. Mq Caller
+		//2b.Call draft akta
 		$akta		= new ThunderServiceCaller;
 		$response 	= $akta->edit_caller($search, $this->request, $this->request->input('ocode').'.document.index');
+		
+		//2b.Call template akta
+		$response_template 		= $akta->edit_caller($search_template, $this->request, $this->request->input('ocode').'.template.index');
 
 		//3. Transform Return
 		$transform 	= new ThunderTransformer;
 		if(str_is($response['status'], 'success') && count($response['data']['data']) <= 0)
 		{
-			$response 	= $transform->edit_draft_akta(['data' => ['data' => $this->dummy()]]);
+			$response 	= $transform->edit_draft_akta(['data' => ['data' => $this->dummy($response_template['data']['data'][0]['paragraph'])]]);
 		}
 		elseif(str_is($response['status'], 'success'))
 		{
@@ -255,8 +263,8 @@ class DraftAktaController extends Controller
 
 	//Here is dataset of document structure
 	//Used in : DraftAktaController@edit
-	public function dummy()
+	public function dummy($paragraph)
 	{
-		return [['_id' => '123456789', 'title' => 'Akta Jual Beli Tanah', 'type' => 'draft_akta', 'writer' => ['_id' => '123456789', 'name' => 'Ada Lovelace'], 'owner' => ['_id' => '123456789', 'name' => 'Thunderlab Indonesia'], 'created_at' => null, 'updated_at' => null, 'deleted_at' => null, 'paragraph' => [['content' => 'Isi Akta']]]];
+		return [['_id' => '123456789', 'title' => 'Akta Jual Beli Tanah', 'type' => 'draft_akta', 'writer' => ['_id' => '123456789', 'name' => 'Ada Lovelace'], 'owner' => ['_id' => '123456789', 'name' => 'Thunderlab Indonesia'], 'created_at' => null, 'updated_at' => null, 'deleted_at' => null, 'paragraph' => $paragraph]];
 	}
 }
