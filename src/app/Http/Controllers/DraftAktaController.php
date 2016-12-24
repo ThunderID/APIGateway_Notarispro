@@ -114,15 +114,15 @@ class DraftAktaController extends Controller
 		//2b.Call draft akta
 		$akta		= new ThunderServiceCaller;
 		$response 	= $akta->edit_caller($search, $this->request, $this->request->input('ocode').'.document.index');
-		
+
 		//2b.Call template akta
 		$response_template 		= $akta->edit_caller($search_template, $this->request, $this->request->input('ocode').'.template.index');
 
-		//3. Transform Return
+		//Transform result
 		$transform 	= new ThunderTransformer;
 		if(str_is($response['status'], 'success') && count($response['data']['data']) <= 0)
 		{
-			$response 	= $transform->edit_draft_akta(['data' => ['data' => $this->dummy($response_template['data']['data'][0]['paragraph'])]]);
+			$response 	= $transform->edit_draft_akta(['status' => $response['status'], 'data' => ['data' => $this->dummy($response_template['data']['data'][0]['paragraph'])]]);
 		}
 		elseif(str_is($response['status'], 'success'))
 		{

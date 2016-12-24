@@ -112,7 +112,7 @@ class TemplateAktaController extends Controller
 		$transform 	= new ThunderTransformer;
 		if(str_is($response['status'], 'success') && count($response['data']['data']) <= 0)
 		{
-			$response 	= $transform->edit_template_akta($this->dummy());
+			$response 	= $transform->edit_template_akta(['status' => $response['status'], 'data' => ['data' => $this->dummy()]]);
 		}
 		elseif(str_is($response['status'], 'success'))
 		{
