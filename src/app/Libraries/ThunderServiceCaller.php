@@ -12,16 +12,28 @@ class ThunderServiceCaller
 	public function __construct() 
 	{
 		$this->iptables 	= 	[
-									'document.index'	=> 'http://172.17.0.5/documents',
-									'document.store'	=> 'http://172.17.0.5/documents',
-									'document.delete'	=> 'http://172.17.0.5/documents',
-									'template.index'	=> 'http://172.17.0.5/templates',
-									'template.store'	=> 'http://172.17.0.5/templates',
-									'template.delete'	=> 'http://172.17.0.5/templates',
-									'lock.index'		=> 'http://172.17.0.6/locks',
-									'lock.store'		=> 'http://172.17.0.6/locks',
-									'lock.delete'		=> 'http://172.17.0.6/locks',
-									'user.index'		=> 'http://172.17.0.7/users',
+									'document.index'	=> 'http://128.199.145.173/documents',
+									'document.store'	=> 'http://128.199.145.173/documents',
+									'document.delete'	=> 'http://128.199.145.173/documents',
+									'template.index'	=> 'http://128.199.145.173/templates',
+									'template.store'	=> 'http://128.199.145.173/templates',
+									'template.delete'	=> 'http://128.199.145.173/templates',
+									'lock.index'		=> 'http://128.199.145.173/locks',
+									'lock.store'		=> 'http://128.199.145.173/locks',
+									'lock.delete'		=> 'http://128.199.145.173/locks',
+									'user.index'		=> 'http://128.199.145.173/users',
+								];
+		$this->portables 	= 	[
+									'document.index'	=> '9200',
+									'document.store'	=> '9200',
+									'document.delete'	=> '9200',
+									'template.index'	=> '9200',
+									'template.store'	=> '9200',
+									'template.delete'	=> '9200',
+									'lock.index'		=> '9201',
+									'lock.store'		=> '9201',
+									'lock.delete'		=> '9201',
+									'user.index'		=> '9200',
 								];
 	}
 
@@ -65,7 +77,7 @@ class ThunderServiceCaller
 		$curl			= curl_init();
 
 		curl_setopt_array($curl, array(
-							  CURLOPT_PORT 				=> "80",
+							  CURLOPT_PORT 				=> $this->portables[$iptable],
 							  CURLOPT_URL 				=> $url,
 							  CURLOPT_RETURNTRANSFER 	=> true,
 							  CURLOPT_ENCODING 			=> "",
@@ -123,7 +135,7 @@ class ThunderServiceCaller
 		$curl			= curl_init();
 
 		curl_setopt_array($curl, array(
-							  CURLOPT_PORT 				=> "80",
+							  CURLOPT_PORT 				=> $this->portables[$iptable],
 							  CURLOPT_URL 				=> $url,
 							  CURLOPT_RETURNTRANSFER 	=> true,
 							  CURLOPT_ENCODING 			=> "",
@@ -173,7 +185,7 @@ class ThunderServiceCaller
 		$curl			= curl_init();
 
 		curl_setopt_array($curl, array(
-							  CURLOPT_PORT 				=> "80",
+							  CURLOPT_PORT 				=> $this->portables[$iptable],
 							  CURLOPT_URL 				=> $url,
 							  CURLOPT_RETURNTRANSFER 	=> true,
 							  CURLOPT_ENCODING 			=> "",
@@ -225,7 +237,7 @@ class ThunderServiceCaller
 		$curl			= curl_init();
 
 		curl_setopt_array($curl, array(
-							  CURLOPT_PORT 				=> "80",
+							  CURLOPT_PORT 				=> $this->portables[$iptable],
 							  CURLOPT_URL 				=> $url,
 							  CURLOPT_RETURNTRANSFER 	=> true,
 							  CURLOPT_ENCODING 			=> "",
