@@ -21,8 +21,8 @@ class EditableTemplateAktaTransformer extends TransformerAbstract
 	{
 		foreach ($value['paragraph'] as $key => $value2) 
 		{
-			$paragraph_title[$key]					= 'paragraph_'.$key;
-			$paragraph_content['paragraph_'.$key]	= 	[
+			$paragraph_title[$key]					= 'paragraph['.$key.']';
+			$paragraph_content['paragraph['.$key.']']	= 	[
 															'element-class'			=> 'input',
 															'element-type'			=> 'text',
 															'element-properties'	=> 
